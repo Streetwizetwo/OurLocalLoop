@@ -4,12 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Our Local Loop | Nottingham Road Network</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Load Supabase first -->
+    
+    <!-- Supabase -->
     <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+    
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
     <style>
         * { font-family: 'Inter', sans-serif; }
         h1, h2, h3 { font-family: 'Poppins', sans-serif; }
@@ -79,13 +89,31 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .setup-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-green-50 min-h-screen">
+    <!-- Setup Banner (hidden after setup) -->
+    <div id="setupBanner" class="hidden setup-banner text-white p-4 text-center fixed top-0 left-0 right-0 z-50">
+        <div class="flex items-center justify-center gap-4">
+            <div class="loading-spinner border-white border-t-transparent"></div>
+            <span id="setupText">Setting up admin user...</span>
+        </div>
+    </div>
+
     <!-- Landing Page -->
     <div id="landingPage" class="fade-in">
         <!-- Navigation -->
-        <nav class="bg-white/80 backdrop-blur-sm shadow-sm fixed w-full z-50">
+        <nav class="bg-white/80 backdrop-blur-sm shadow-sm fixed w-full z-40">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <div class="flex items-center">
@@ -128,6 +156,19 @@
                         </button>
                         <button onclick="window.app.showCustomerPortal()" class="bg-white text-gray-800 border-2 border-green-500 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-green-50">
                             <i class="fas fa-user mr-2"></i>Customer Portal
+                        </button>
+                    </div>
+                    
+                    <!-- Quick Login Box for Khader -->
+                    <div class="max-w-md mx-auto mb-8 p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl border border-green-200 shadow-lg">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3">Quick Admin Login</h3>
+                        <div class="text-sm text-gray-600 mb-4">
+                            <p><strong>Email:</strong> khadertahir@gmail.com</p>
+                            <p><strong>Password:</strong> Yumna@786</p>
+                        </div>
+                        <button onclick="window.app.quickLogin('khadertahir@gmail.com', 'Yumna@786')" 
+                                class="w-full btn-primary text-white px-6 py-3 rounded-lg font-semibold">
+                            <i class="fas fa-bolt mr-2"></i>Login as Admin
                         </button>
                     </div>
                     
@@ -187,7 +228,7 @@
                     </div>
                     <p class="text-gray-400 mb-8">Nottingham Road's Community Commerce Network</p>
                     <div class="text-gray-500 text-sm">
-                        <p>© 2024 Our Local Loop. All rights reserved.</p>
+                        <p>&copy; 2024 Our Local Loop. All rights reserved.</p>
                         <p class="mt-2">Nottingham Road, KwaZulu-Natal, South Africa</p>
                         <p class="mt-2">Email: hello@ourlocalloop.co.za | Phone: +27 33 XXX XXXX</p>
                     </div>
@@ -237,7 +278,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
                         <input type="password" id="loginPassword" required 
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
-                               placeholder="••••••••">
+                               placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
                     </div>
                     
                     <button type="submit" id="loginButton"
@@ -248,8 +289,16 @@
                 </div>
             </form>
             
+            <!-- Pre-fill for Khader -->
             <div class="mt-6 pt-6 border-t border-gray-200">
-                <div class="text-center">
+                <h4 class="text-sm font-medium text-gray-700 mb-3">Quick Login</h4>
+                <button onclick="window.app.fillLogin('khadertahir@gmail.com', 'Yumna@786')"
+                        class="w-full text-left text-sm bg-green-50 p-3 rounded-lg border border-green-200 hover:bg-green-100 transition mb-2">
+                    <div class="font-medium text-gray-900">Khader Tahir (Admin)</div>
+                    <div class="text-gray-600 text-xs">khadertahir@gmail.com</div>
+                </button>
+                
+                <div class="text-center mt-4">
                     <button onclick="window.app.showLanding()" class="text-sm text-green-600 hover:text-green-500 font-medium">
                         <i class="fas fa-arrow-left mr-2"></i> Back to Main Site
                     </button>
@@ -516,38 +565,38 @@
 
     <!-- Main Application Script -->
     <script>
-        // Application Module - wrapped to avoid global namespace pollution
+        // Application Module
         window.app = (function() {
             'use strict';
             
-            // Private variables
             let _supabaseClient = null;
             let _currentUser = null;
             let _loginType = 'admin';
             let _realtimeSubscription = null;
             
-            // Supabase Configuration
+            const DEFAULT_ADMIN = {
+                email: 'khadertahir@gmail.com',
+                password: 'Yumna@786',
+                fullName: 'Khader Tahir'
+            };
+            
             const SUPABASE_URL = 'https://hwbbtuijwvfhuakcsjqj.supabase.co';
             const SUPABASE_KEY = 'sb_publishable_M1IrCztp4duxP7k6CylW2Q_C-KcAO95';
             
-            // Initialize Supabase Client
             function _initSupabase() {
                 try {
                     if (window.supabase && window.supabase.createClient) {
                         _supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                         console.log('Supabase initialized successfully');
                         return true;
-                    } else {
-                        console.error('Supabase library not loaded');
-                        return false;
                     }
+                    return false;
                 } catch (e) {
                     console.error('Failed to initialize Supabase:', e);
                     return false;
                 }
             }
             
-            // Wait for Supabase to be ready
             function _waitForSupabase(callback, maxAttempts = 50) {
                 let attempts = 0;
                 const checkInterval = setInterval(() => {
@@ -557,35 +606,81 @@
                         if (callback) callback();
                     } else if (attempts >= maxAttempts) {
                         clearInterval(checkInterval);
-                        console.error('Failed to load Supabase after ' + maxAttempts + ' attempts');
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Connection Error',
-                            text: 'Failed to connect to database. Please refresh the page.'
-                        });
+                        console.error('Failed to load Supabase');
                     }
                 }, 100);
             }
             
-            // Getters
             function _getSupabase() {
-                if (!_supabaseClient) {
-                    _initSupabase();
-                }
+                if (!_supabaseClient) _initSupabase();
                 return _supabaseClient;
             }
             
-            // Public API
+            async function _setupDefaultAdmin() {
+                try {
+                    const banner = document.getElementById('setupBanner');
+                    const bannerText = document.getElementById('setupText');
+                    
+                    if (banner) banner.classList.remove('hidden');
+                    
+                    const supabase = _getSupabase();
+                    
+                    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+                        email: DEFAULT_ADMIN.email,
+                        password: DEFAULT_ADMIN.password
+                    });
+                    
+                    if (signInError) {
+                        if (bannerText) bannerText.textContent = 'Creating admin user...';
+                        
+                        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                            email: DEFAULT_ADMIN.email,
+                            password: DEFAULT_ADMIN.password,
+                            options: { data: { full_name: DEFAULT_ADMIN.fullName } }
+                        });
+                        
+                        if (!signUpError && signUpData.user) {
+                            await supabase.from('profiles').insert({
+                                id: signUpData.user.id,
+                                full_name: DEFAULT_ADMIN.fullName,
+                                role: 'admin'
+                            });
+                        }
+                    } else {
+                        await supabase.auth.signOut();
+                    }
+                    
+                    setTimeout(() => { if (banner) banner.classList.add('hidden'); }, 2000);
+                    
+                } catch (error) {
+                    console.error('Setup error:', error);
+                    setTimeout(() => {
+                        const banner = document.getElementById('setupBanner');
+                        if (banner) banner.classList.add('hidden');
+                    }, 3000);
+                }
+            }
+            
             return {
-                // Initialize the application
                 init: function() {
-                    _waitForSupabase(() => {
-                        this.loadPublicStats();
-                        this.checkAuthState();
+                    _waitForSupabase(async () => {
+                        await _setupDefaultAdmin();
+                        await this.loadPublicStats();
+                        await this.checkAuthState();
                     });
                 },
                 
-                // Navigation Functions
+                quickLogin: async function(email, password) {
+                    document.getElementById('loginEmail').value = email;
+                    document.getElementById('loginPassword').value = password;
+                    await this.handleLogin({ preventDefault: () => {} });
+                },
+                
+                fillLogin: function(email, password) {
+                    document.getElementById('loginEmail').value = email;
+                    document.getElementById('loginPassword').value = password;
+                },
+                
                 showLogin: function() {
                     document.getElementById('loginModal').classList.remove('hidden');
                     this.setLoginType('admin');
@@ -597,7 +692,6 @@
                 
                 setLoginType: function(type) {
                     _loginType = type;
-                    
                     document.getElementById('adminTab').className = type === 'admin' 
                         ? 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-green-500 bg-green-50 text-green-700'
                         : 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-gray-300 text-gray-600 hover:border-green-300';
@@ -611,9 +705,8 @@
                         : '<i class="fas fa-store mr-2"></i> Business Sign In';
                 },
                 
-                // Authentication Functions
                 handleLogin: async function(event) {
-                    event.preventDefault();
+                    if (event && event.preventDefault) event.preventDefault();
                     
                     const email = document.getElementById('loginEmail').value;
                     const password = document.getElementById('loginPassword').value;
@@ -625,117 +718,50 @@
                         const supabase = _getSupabase();
                         
                         if (_loginType === 'admin') {
-                            const { data, error } = await supabase.auth.signInWithPassword({
-                                email: email,
-                                password: password
-                            });
-                            
+                            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
                             if (error) throw error;
                             
-                            const { data: profile, error: profileError } = await supabase
-                                .from('profiles')
-                                .select('role, full_name')
-                                .eq('id', data.user.id)
-                                .single();
+                            const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', data.user.id).single();
                             
-                            if (profileError || profile.role !== 'admin') {
+                            if (!profile || profile.role !== 'admin') {
                                 await supabase.auth.signOut();
                                 throw new Error('Unauthorized access');
                             }
                             
                             _currentUser = { ...data.user, ...profile, type: 'admin' };
                             
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Welcome back!',
-                                text: `Logged in as ${profile.full_name}`,
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
+                            Swal.fire({ icon: 'success', title: 'Welcome back!', text: `Logged in as ${profile.full_name}`, timer: 1500, showConfirmButton: false });
                             
-                            setTimeout(() => {
-                                this.closeLogin();
-                                this.showAdminDashboard();
-                            }, 1600);
-                            
-                        } else if (_loginType === 'business') {
-                            const { data, error } = await supabase.auth.signInWithPassword({
-                                email: email,
-                                password: password
-                            });
-                            
-                            if (error) throw error;
-                            
-                            const { data: business, error: bizError } = await supabase
-                                .from('businesses')
-                                .select('*, owner_id')
-                                .eq('owner_id', data.user.id)
-                                .single();
-                            
-                            if (bizError) throw new Error('No business associated with this account');
-                            
-                            _currentUser = { ...data.user, business, type: 'business' };
-                            
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Welcome!',
-                                text: `Logged in to ${business.name}`,
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                            
-                            setTimeout(() => {
-                                this.closeLogin();
-                                this.showBusinessDashboard();
-                            }, 1600);
+                            setTimeout(() => { this.closeLogin(); this.showAdminDashboard(); }, 1600);
                         }
                     } catch (error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Login Failed',
-                            text: error.message || 'Invalid credentials',
-                            timer: 3000,
-                            showConfirmButton: false
-                        });
+                        Swal.fire({ icon: 'error', title: 'Login Failed', text: error.message || 'Invalid credentials', timer: 3000, showConfirmButton: false });
                     } finally {
                         document.getElementById('loginBtnText').classList.remove('hidden');
                         document.getElementById('loginSpinner').classList.add('hidden');
                     }
-                    
                     return false;
                 },
                 
                 logout: async function() {
                     const result = await Swal.fire({
-                        title: 'Logout?',
-                        text: 'Are you sure you want to logout?',
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#10b981',
-                        cancelButtonColor: '#6b7280',
+                        title: 'Logout?', text: 'Are you sure?', icon: 'question',
+                        showCancelButton: true, confirmButtonColor: '#10b981', cancelButtonColor: '#6b7280',
                         confirmButtonText: 'Yes, logout'
                     });
                     
                     if (result.isConfirmed) {
-                        const supabase = _getSupabase();
-                        await supabase.auth.signOut();
-                        
-                        if (_realtimeSubscription) {
-                            await supabase.removeChannel(_realtimeSubscription);
-                            _realtimeSubscription = null;
-                        }
-                        
+                        await _getSupabase().auth.signOut();
+                        if (_realtimeSubscription) await _getSupabase().removeChannel(_realtimeSubscription);
                         _currentUser = null;
                         this.showLanding();
                     }
                 },
                 
-                // Dashboard Functions
                 showLanding: function() {
-                    document.getElementById('adminDashboard').classList.add('hidden');
-                    document.getElementById('businessDashboard').classList.add('hidden');
-                    document.getElementById('customerPortal').classList.add('hidden');
-                    document.getElementById('loginModal').classList.add('hidden');
+                    ['adminDashboard', 'businessDashboard', 'customerPortal', 'loginModal'].forEach(id => {
+                        document.getElementById(id).classList.add('hidden');
+                    });
                     document.getElementById('landingPage').classList.remove('hidden');
                 },
                 
@@ -751,590 +777,139 @@
                     this.subscribeToRealtimeUpdates();
                 },
                 
-                showBusinessDashboard: async function() {
-                    document.getElementById('landingPage').classList.add('hidden');
-                    document.getElementById('businessDashboard').classList.remove('hidden');
-                    document.getElementById('businessName').textContent = _currentUser.business.name;
-                    
-                    await this.loadBusinessStats();
-                    await this.loadMyVouchers();
-                },
-                
                 showCustomerPortal: async function() {
                     document.getElementById('landingPage').classList.add('hidden');
                     document.getElementById('customerPortal').classList.remove('hidden');
                     await this.loadPublicBusinesses();
                 },
                 
-                // Data Loading Functions
                 loadDashboardStats: async function() {
                     try {
                         const supabase = _getSupabase();
+                        const { count: businessCount } = await supabase.from('businesses').select('*', { count: 'exact', head: true });
+                        const { count: userCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
                         
-                        const { count: businessCount } = await supabase
-                            .from('businesses')
-                            .select('*', { count: 'exact', head: true });
-                        
-                        const { count: userCount } = await supabase
-                            .from('profiles')
-                            .select('*', { count: 'exact', head: true });
-                        
-                        const startOfMonth = new Date();
-                        startOfMonth.setDate(1);
-                        const { count: redemptionCount } = await supabase
-                            .from('transactions')
-                            .select('*', { count: 'exact', head: true })
-                            .gte('created_at', startOfMonth.toISOString())
-                            .eq('type', 'redemption');
-                        
-                        const { data: transactions } = await supabase
-                            .from('transactions')
-                            .select('amount')
-                            .gte('created_at', startOfMonth.toISOString());
-                        
+                        const startOfMonth = new Date(); startOfMonth.setDate(1);
+                        const { count: redemptionCount } = await supabase.from('transactions').select('*', { count: 'exact', head: true }).gte('created_at', startOfMonth.toISOString()).eq('type', 'redemption');
+                        const { data: transactions } = await supabase.from('transactions').select('amount').gte('created_at', startOfMonth.toISOString());
                         const revenue = transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
                         
-                        const statsHtml = `
+                        document.getElementById('dashboardStats').innerHTML = `
                             <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600">
-                                        <i class="fas fa-store text-white text-xl"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="text-3xl font-bold text-gray-900 mb-1">${businessCount || 0}</div>
-                                    <div class="text-sm text-gray-500">Connected Businesses</div>
-                                </div>
+                                <div class="flex items-center justify-between mb-4"><div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600"><i class="fas fa-store text-white text-xl"></i></div></div>
+                                <div><div class="text-3xl font-bold text-gray-900 mb-1">${businessCount || 0}</div><div class="text-sm text-gray-500">Connected Businesses</div></div>
                             </div>
-                            
                             <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600">
-                                        <i class="fas fa-users text-white text-xl"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="text-3xl font-bold text-gray-900 mb-1">${userCount || 0}</div>
-                                    <div class="text-sm text-gray-500">Active Users</div>
-                                </div>
+                                <div class="flex items-center justify-between mb-4"><div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600"><i class="fas fa-users text-white text-xl"></i></div></div>
+                                <div><div class="text-3xl font-bold text-gray-900 mb-1">${userCount || 0}</div><div class="text-sm text-gray-500">Active Users</div></div>
                             </div>
-                            
                             <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600">
-                                        <i class="fas fa-qrcode text-white text-xl"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="text-3xl font-bold text-gray-900 mb-1">${redemptionCount || 0}</div>
-                                    <div class="text-sm text-gray-500">Monthly Redemptions</div>
-                                </div>
+                                <div class="flex items-center justify-between mb-4"><div class="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600"><i class="fas fa-qrcode text-white text-xl"></i></div></div>
+                                <div><div class="text-3xl font-bold text-gray-900 mb-1">${redemptionCount || 0}</div><div class="text-sm text-gray-500">Monthly Redemptions</div></div>
                             </div>
-                            
                             <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600">
-                                        <i class="fas fa-money-bill-wave text-white text-xl"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="text-3xl font-bold text-gray-900 mb-1">R${revenue.toLocaleString()}</div>
-                                    <div class="text-sm text-gray-500">Monthly Revenue</div>
-                                </div>
+                                <div class="flex items-center justify-between mb-4"><div class="p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600"><i class="fas fa-money-bill-wave text-white text-xl"></i></div></div>
+                                <div><div class="text-3xl font-bold text-gray-900 mb-1">R${revenue.toLocaleString()}</div><div class="text-sm text-gray-500">Monthly Revenue</div></div>
                             </div>
                         `;
-                        
-                        document.getElementById('dashboardStats').innerHTML = statsHtml;
                         document.getElementById('lastSyncTime').textContent = new Date().toLocaleTimeString();
-                        
-                    } catch (error) {
-                        console.error('Error loading stats:', error);
-                    }
+                    } catch (error) { console.error('Error loading stats:', error); }
                 },
                 
                 loadBusinessCategories: async function() {
                     try {
-                        const supabase = _getSupabase();
-                        const { data: businesses, error } = await supabase
-                            .from('businesses')
-                            .select('category');
-                        
-                        if (error) throw error;
-                        
+                        const { data: businesses } = await _getSupabase().from('businesses').select('category');
                         const categories = {};
-                        businesses.forEach(b => {
-                            categories[b.category] = (categories[b.category] || 0) + 1;
-                        });
+                        businesses.forEach(b => { categories[b.category] = (categories[b.category] || 0) + 1; });
                         
-                        const categoryColors = {
-                            'cafe': 'green',
-                            'restaurant': 'blue',
-                            'accommodation': 'purple',
-                            'retail': 'yellow',
-                            'experience': 'pink'
-                        };
-                        
-                        const categoryIcons = {
-                            'cafe': 'coffee',
-                            'restaurant': 'utensils',
-                            'accommodation': 'bed',
-                            'retail': 'shopping-bag',
-                            'experience': 'star'
-                        };
+                        const colors = { cafe: 'green', restaurant: 'blue', accommodation: 'purple', retail: 'yellow', experience: 'pink' };
+                        const icons = { cafe: 'coffee', restaurant: 'utensils', accommodation: 'bed', retail: 'shopping-bag', experience: 'star' };
                         
                         let html = '';
                         for (const [cat, count] of Object.entries(categories)) {
-                            const color = categoryColors[cat] || 'gray';
-                            const icon = categoryIcons[cat] || 'store';
-                            
-                            html += `
-                                <div class="p-4 bg-gradient-to-r from-${color}-50 to-${color}-100 rounded-xl border border-${color}-200">
-                                    <div class="flex items-center">
-                                        <div class="p-2 bg-${color}-500 rounded-lg">
-                                            <i class="fas fa-${icon} text-white"></i>
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="font-bold text-gray-900 capitalize">${cat}</div>
-                                            <div class="text-sm text-gray-600">${count} businesses</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
+                            const color = colors[cat] || 'gray', icon = icons[cat] || 'store';
+                            html += `<div class="p-4 bg-gradient-to-r from-${color}-50 to-${color}-100 rounded-xl border border-${color}-200">
+                                <div class="flex items-center"><div class="p-2 bg-${color}-500 rounded-lg"><i class="fas fa-${icon} text-white"></i></div>
+                                <div class="ml-4"><div class="font-bold text-gray-900 capitalize">${cat}</div><div class="text-sm text-gray-600">${count} businesses</div></div></div></div>`;
                         }
-                        
                         document.getElementById('businessCategories').innerHTML = html || '<div class="text-gray-500">No businesses yet</div>';
                         document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
-                        
-                    } catch (error) {
-                        console.error('Error loading categories:', error);
-                    }
+                    } catch (error) { console.error('Error loading categories:', error); }
                 },
                 
                 loadRecentActivity: async function(limit = 10) {
                     try {
-                        const supabase = _getSupabase();
-                        const { data: activities, error } = await supabase
-                            .from('transactions')
-                            .select('*, businesses(name), profiles(full_name)')
-                            .order('created_at', { ascending: false })
-                            .limit(limit);
-                        
-                        if (error) throw error;
-                        
+                        const { data: activities } = await _getSupabase().from('transactions').select('*, businesses(name), profiles(full_name)').order('created_at', { ascending: false }).limit(limit);
                         let html = '';
                         activities.forEach(activity => {
                             const isRedemption = activity.type === 'redemption';
-                            const icon = isRedemption ? 'check' : 'plus';
-                            const color = isRedemption ? 'green' : 'blue';
-                            const businessName = activity.businesses?.name || 'Unknown';
                             const timeAgo = this.getTimeAgo(new Date(activity.created_at));
-                            
-                            html += `
-                                <div class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition border-l-4 border-${color}-500">
-                                    <div class="p-2 rounded-full bg-${color}-100">
-                                        <i class="fas fa-${icon} text-${color}-600"></i>
-                                    </div>
-                                    <div class="ml-4 flex-1">
-                                        <div class="font-medium text-gray-900">${businessName}</div>
-                                        <div class="text-sm text-gray-500">
-                                            ${isRedemption ? 'Redeemed' : 'Issued'} voucher worth R${activity.amount}
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="text-xs text-gray-400">${timeAgo}</div>
-                                    </div>
-                                </div>
-                            `;
+                            html += `<div class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition border-l-4 border-${isRedemption ? 'green' : 'blue'}-500">
+                                <div class="p-2 rounded-full bg-${isRedemption ? 'green' : 'blue'}-100"><i class="fas fa-${isRedemption ? 'check' : 'plus'} text-${isRedemption ? 'green' : 'blue'}-600"></i></div>
+                                <div class="ml-4 flex-1"><div class="font-medium text-gray-900">${activity.businesses?.name || 'Unknown'}</div>
+                                <div class="text-sm text-gray-500">${isRedemption ? 'Redeemed' : 'Issued'} voucher worth R${activity.amount}</div></div>
+                                <div class="text-right"><div class="text-xs text-gray-400">${timeAgo}</div></div></div>`;
                         });
-                        
                         document.getElementById('activityFeed').innerHTML = html || '<div class="text-gray-500">No recent activity</div>';
-                        
-                    } catch (error) {
-                        console.error('Error loading activity:', error);
-                    }
-                },
-                
-                loadBusinessStats: async function() {
-                    if (!_currentUser?.business?.id) return;
-                    
-                    try {
-                        const supabase = _getSupabase();
-                        const businessId = _currentUser.business.id;
-                        const today = new Date().toISOString().split('T')[0];
-                        
-                        const { count: todayRedemptions } = await supabase
-                            .from('transactions')
-                            .select('*', { count: 'exact', head: true })
-                            .eq('business_id', businessId)
-                            .eq('type', 'redemption')
-                            .gte('created_at', today);
-                        
-                        const { data: todayTrans } = await supabase
-                            .from('transactions')
-                            .select('amount')
-                            .eq('business_id', businessId)
-                            .gte('created_at', today);
-                        
-                        const revenue = todayTrans?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
-                        
-                        const { count: activeVouchers } = await supabase
-                            .from('vouchers')
-                            .select('*', { count: 'exact', head: true })
-                            .eq('business_id', businessId)
-                            .eq('status', 'active');
-                        
-                        const html = `
-                            <div class="bg-green-50 p-6 rounded-xl border border-green-200">
-                                <div class="text-3xl font-bold text-green-700 mb-2">${todayRedemptions || 0}</div>
-                                <div class="text-gray-600">Today's Redemptions</div>
-                            </div>
-                            <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
-                                <div class="text-3xl font-bold text-blue-700 mb-2">R${revenue.toLocaleString()}</div>
-                                <div class="text-gray-600">Today's Revenue</div>
-                            </div>
-                            <div class="bg-purple-50 p-6 rounded-xl border border-purple-200">
-                                <div class="text-3xl font-bold text-purple-700 mb-2">${activeVouchers || 0}</div>
-                                <div class="text-gray-600">Active Vouchers</div>
-                            </div>
-                        `;
-                        
-                        document.getElementById('businessStats').innerHTML = html;
-                        
-                    } catch (error) {
-                        console.error('Error loading business stats:', error);
-                    }
-                },
-                
-                loadMyVouchers: async function() {
-                    if (!_currentUser?.business?.id) return;
-                    
-                    try {
-                        const supabase = _getSupabase();
-                        const { data: vouchers, error } = await supabase
-                            .from('vouchers')
-                            .select('*')
-                            .eq('business_id', _currentUser.business.id)
-                            .order('created_at', { ascending: false })
-                            .limit(10);
-                        
-                        if (error) throw error;
-                        
-                        let html = '';
-                        vouchers.forEach(voucher => {
-                            const statusColor = voucher.status === 'active' ? 'green' : 
-                                              voucher.status === 'redeemed' ? 'blue' : 'gray';
-                            
-                            html += `
-                                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                                    <div>
-                                        <div class="font-semibold text-gray-900">R${voucher.amount} Voucher</div>
-                                        <div class="text-sm text-gray-500">Code: ${voucher.code}</div>
-                                    </div>
-                                    <span class="px-3 py-1 bg-${statusColor}-100 text-${statusColor}-800 rounded-full text-sm capitalize">
-                                        ${voucher.status}
-                                    </span>
-                                </div>
-                            `;
-                        });
-                        
-                        document.getElementById('myVouchers').innerHTML = html || '<div class="text-gray-500">No vouchers yet</div>';
-                        
-                    } catch (error) {
-                        console.error('Error loading vouchers:', error);
-                    }
+                    } catch (error) { console.error('Error loading activity:', error); }
                 },
                 
                 loadPublicBusinesses: async function() {
                     try {
-                        const supabase = _getSupabase();
-                        const { data: businesses, error } = await supabase
-                            .from('businesses')
-                            .select('*, profiles(full_name)')
-                            .eq('status', 'active')
-                            .order('name');
-                        
-                        if (error) throw error;
-                        
+                        const { data: businesses } = await _getSupabase().from('businesses').select('*').eq('status', 'active').order('name');
                         let html = '';
                         businesses.forEach(biz => {
-                            html += `
-                                <div class="p-4 border border-gray-200 rounded-lg hover:shadow-md transition">
-                                    <div class="flex items-start justify-between">
-                                        <div>
-                                            <h3 class="font-semibold text-gray-900">${biz.name}</h3>
-                                            <p class="text-sm text-gray-500 capitalize">${biz.category} • ${biz.location || 'Nottingham Road'}</p>
-                                        </div>
-                                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Open</span>
-                                    </div>
-                                    <p class="mt-2 text-sm text-gray-600">${biz.description || 'Join the network to earn rewards!'}</p>
-                                </div>
-                            `;
+                            html += `<div class="p-4 border border-gray-200 rounded-lg hover:shadow-md transition">
+                                <div class="flex items-start justify-between"><div><h3 class="font-semibold text-gray-900">${biz.name}</h3>
+                                <p class="text-sm text-gray-500 capitalize">${biz.category} &bull; ${biz.location || 'Nottingham Road'}</p></div>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Open</span></div>
+                                <p class="mt-2 text-sm text-gray-600">${biz.description || 'Join the network to earn rewards!'}</p></div>`;
                         });
-                        
                         document.getElementById('customerBusinessList').innerHTML = html || '<div class="text-gray-500">No businesses found</div>';
-                        
-                    } catch (error) {
-                        console.error('Error loading businesses:', error);
-                    }
+                    } catch (error) { console.error('Error loading businesses:', error); }
                 },
                 
                 loadPublicStats: async function() {
                     try {
                         const supabase = _getSupabase();
-                        const { count: businessCount } = await supabase
-                            .from('businesses')
-                            .select('*', { count: 'exact', head: true });
-                        
-                        const { count: userCount } = await supabase
-                            .from('profiles')
-                            .select('*', { count: 'exact', head: true });
-                        
-                        const { data: transactions } = await supabase
-                            .from('transactions')
-                            .select('amount');
-                        
+                        const { count: businessCount } = await supabase.from('businesses').select('*', { count: 'exact', head: true });
+                        const { count: userCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+                        const { data: transactions } = await supabase.from('transactions').select('amount');
                         const totalCirculation = transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
                         
-                        const html = `
-                            <div class="bg-white p-6 rounded-2xl shadow-lg">
-                                <div class="text-3xl font-bold text-green-600 mb-2">${businessCount || 0}</div>
-                                <div class="text-gray-600">Local Businesses</div>
-                            </div>
-                            <div class="bg-white p-6 rounded-2xl shadow-lg">
-                                <div class="text-3xl font-bold text-blue-600 mb-2">${userCount || 0}</div>
-                                <div class="text-gray-600">Active Users</div>
-                            </div>
-                            <div class="bg-white p-6 rounded-2xl shadow-lg">
-                                <div class="text-3xl font-bold text-purple-600 mb-2">R${(totalCirculation / 1000).toFixed(1)}K+</div>
-                                <div class="text-gray-600">Total Circulation</div>
-                            </div>
-                            <div class="bg-white p-6 rounded-2xl shadow-lg">
-                                <div class="text-3xl font-bold text-yellow-600 mb-2">98%</div>
-                                <div class="text-gray-600">Satisfaction Rate</div>
-                            </div>
+                        document.getElementById('publicStats').innerHTML = `
+                            <div class="bg-white p-6 rounded-2xl shadow-lg"><div class="text-3xl font-bold text-green-600 mb-2">${businessCount || 0}</div><div class="text-gray-600">Local Businesses</div></div>
+                            <div class="bg-white p-6 rounded-2xl shadow-lg"><div class="text-3xl font-bold text-blue-600 mb-2">${userCount || 0}</div><div class="text-gray-600">Active Users</div></div>
+                            <div class="bg-white p-6 rounded-2xl shadow-lg"><div class="text-3xl font-bold text-purple-600 mb-2">R${(totalCirculation / 1000).toFixed(1)}K+</div><div class="text-gray-600">Total Circulation</div></div>
+                            <div class="bg-white p-6 rounded-2xl shadow-lg"><div class="text-3xl font-bold text-yellow-600 mb-2">98%</div><div class="text-gray-600">Satisfaction Rate</div></div>
                         `;
-                        
-                        document.getElementById('publicStats').innerHTML = html;
-                        
-                    } catch (error) {
-                        console.error('Error loading public stats:', error);
-                    }
+                    } catch (error) { console.error('Error loading public stats:', error); }
                 },
                 
-                // Real-time Subscriptions
                 subscribeToRealtimeUpdates: function() {
-                    const supabase = _getSupabase();
-                    _realtimeSubscription = supabase
-                        .channel('public:transactions')
-                        .on('postgres_changes', 
-                            { event: 'INSERT', schema: 'public', table: 'transactions' },
-                            (payload) => {
-                                console.log('New transaction:', payload);
-                                this.loadRecentActivity();
-                                this.loadDashboardStats();
-                            }
-                        )
-                        .subscribe();
+                    _realtimeSubscription = _getSupabase().channel('public:transactions').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'transactions' }, () => {
+                        this.loadRecentActivity(); this.loadDashboardStats();
+                    }).subscribe();
                 },
                 
-                // Action Modal Functions
                 showActionModal: function(action) {
-                    let modalContent = '';
-                    let title = '';
-                    
-                    switch(action) {
-                        case 'addBusiness':
-                            title = 'Add New Business';
-                            modalContent = `
-                                <form onsubmit="return window.app.submitNewBusiness(event)" class="space-y-4">
-                                    <input type="text" name="name" placeholder="Business Name" required
-                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                                    <input type="email" name="email" placeholder="Owner Email" required
-                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                                    <select name="category" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                                        <option value="">Select Category</option>
-                                        <option value="cafe">Café / Coffee Shop</option>
-                                        <option value="restaurant">Restaurant</option>
-                                        <option value="accommodation">Accommodation</option>
-                                        <option value="retail">Retail</option>
-                                        <option value="experience">Experience</option>
-                                    </select>
-                                    <textarea name="description" placeholder="Description" rows="3" 
-                                              class="w-full px-4 py-3 border border-gray-300 rounded-lg"></textarea>
-                                    <button type="submit" class="w-full btn-primary text-white font-semibold py-3 rounded-lg">
-                                        <i class="fas fa-plus mr-2"></i> Add Business
-                                    </button>
-                                </form>
-                            `;
-                            break;
-                            
-                        case 'createCampaign':
-                            title = 'Create Campaign';
-                            modalContent = `
-                                <form onsubmit="return window.app.submitCampaign(event)" class="space-y-4">
-                                    <input type="text" name="name" placeholder="Campaign Name" required
-                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                                    <textarea name="description" placeholder="Description" rows="3" 
-                                              class="w-full px-4 py-3 border border-gray-300 rounded-lg"></textarea>
-                                    <input type="number" name="budget" placeholder="Budget (R)" required
-                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                                    <input type="date" name="end_date" required
-                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                                    <button type="submit" class="w-full btn-primary text-white font-semibold py-3 rounded-lg">
-                                        <i class="fas fa-bullhorn mr-2"></i> Launch Campaign
-                                    </button>
-                                </form>
-                            `;
-                            break;
-                            
-                        default:
-                            title = 'Action';
-                            modalContent = `<p class="text-gray-600">Action functionality coming soon...</p>`;
+                    let modalContent = '', title = '';
+                    if (action === 'addBusiness') {
+                        title = 'Add New Business';
+                        modalContent = `<form onsubmit="return window.app.submitNewBusiness(event)" class="space-y-4">
+                            <input type="text" name="name" placeholder="Business Name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                            <input type="email" name="email" placeholder="Owner Email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                            <select name="category" required class="w-full px-4 py-3 border border-gray-300 rounded-lg"><option value="">Select Category</option><option value="cafe">Caf&eacute;</option><option value="restaurant">Restaurant</option><option value="accommodation">Accommodation</option><option value="retail">Retail</option><option value="experience">Experience</option></select>
+                            <textarea name="description" placeholder="Description" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg"></textarea>
+                            <button type="submit" class="w-full btn-primary text-white font-semibold py-3 rounded-lg"><i class="fas fa-plus mr-2"></i> Add Business</button></form>`;
                     }
                     
-                    document.getElementById('modalContent').innerHTML = `
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-xl font-bold text-gray-900">${title}</h3>
-                            <button onclick="window.app.closeActionModal()" class="text-gray-400 hover:text-gray-600">
-                                <i class="fas fa-times text-2xl"></i>
-                            </button>
-                        </div>
-                        ${modalContent}
-                    `;
-                    
+                    document.getElementById('modalContent').innerHTML = `<div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-gray-900">${title}</h3><button onclick="window.app.closeActionModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-2xl"></i></button></div>${modalContent}`;
                     document.getElementById('actionModal').classList.remove('hidden');
                 },
                 
-                submitNewBusiness: async function(event) {
-                    event.preventDefault();
-                    const formData = new FormData(event.target);
-                    
-                    try {
-                        const supabase = _getSupabase();
-                        const tempPassword = Math.random().toString(36).slice(-8);
-                        
-                        const { data: authData, error: authError } = await supabase.auth.signUp({
-                            email: formData.get('email'),
-                            password: tempPassword
-                        });
-                        
-                        if (authError) throw authError;
-                        
-                        await supabase.from('profiles').insert({
-                            id: authData.user.id,
-                            role: 'business_owner',
-                            full_name: formData.get('name') + ' Owner'
-                        });
-                        
-                        const { error: bizError } = await supabase.from('businesses').insert({
-                            name: formData.get('name'),
-                            category: formData.get('category'),
-                            description: formData.get('description'),
-                            owner_id: authData.user.id,
-                            status: 'active'
-                        });
-                        
-                        if (bizError) throw bizError;
-                        
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Business Added!',
-                            text: `Temporary password: ${tempPassword}`,
-                            confirmButtonColor: '#10b981'
-                        });
-                        
-                        this.closeActionModal();
-                        this.loadBusinessCategories();
-                        
-                    } catch (error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: error.message
-                        });
-                    }
-                    
-                    return false;
-                },
+                closeActionModal: function() { document.getElementById('actionModal').classList.add('hidden'); },
                 
-                submitCampaign: async function(event) {
-                    event.preventDefault();
-                    const formData = new FormData(event.target);
-                    
-                    try {
-                        const supabase = _getSupabase();
-                        const { error } = await supabase.from('campaigns').insert({
-                            name: formData.get('name'),
-                            description: formData.get('description'),
-                            budget: parseFloat(formData.get('budget')),
-                            end_date: formData.get('end_date'),
-                            created_by: _currentUser.id,
-                            status: 'active'
-                        });
-                        
-                        if (error) throw error;
-                        
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Campaign Created!',
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-                        
-                        this.closeActionModal();
-                        
-                    } catch (error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: error.message
-                        });
-                    }
-                    
-                    return false;
-                },
-                
-                generateVoucher: async function() {
-                    const amount = document.getElementById('voucherAmount').value;
-                    if (!amount || amount <= 0) {
-                        Swal.fire({ icon: 'warning', title: 'Please enter a valid amount' });
-                        return;
-                    }
-                    
-                    try {
-                        const supabase = _getSupabase();
-                        const code = 'OLL' + Math.random().toString(36).substring(2, 8).toUpperCase();
-                        
-                        const { error } = await supabase.from('vouchers').insert({
-                            business_id: _currentUser.business.id,
-                            amount: parseFloat(amount),
-                            code: code,
-                            status: 'active',
-                            created_by: _currentUser.id
-                        });
-                        
-                        if (error) throw error;
-                        
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Voucher Generated!',
-                            html: `<div class="text-2xl font-bold text-green-600 my-4">${code}</div><p>Show this code to customer</p>`,
-                            confirmButtonColor: '#10b981'
-                        });
-                        
-                        this.loadMyVouchers();
-                        document.getElementById('voucherAmount').value = '';
-                        
-                    } catch (error) {
-                        Swal.fire({ icon: 'error', title: 'Error', text: error.message });
-                    }
-                },
-                
-                closeActionModal: function() {
-                    document.getElementById('actionModal').classList.add('hidden');
-                },
-                
-                // Utility Functions
                 getTimeAgo: function(date) {
                     const seconds = Math.floor((new Date() - date) / 1000);
                     if (seconds < 60) return 'Just now';
@@ -1342,72 +917,36 @@
                     if (minutes < 60) return `${minutes}m ago`;
                     const hours = Math.floor(minutes / 60);
                     if (hours < 24) return `${hours}h ago`;
-                    const days = Math.floor(hours / 24);
-                    return `${days}d ago`;
+                    return `${Math.floor(hours / 24)}d ago`;
                 },
                 
                 checkAuthState: async function() {
                     try {
-                        const supabase = _getSupabase();
-                        const { data: { session } } = await supabase.auth.getSession();
+                        const { data: { session } } = await _getSupabase().auth.getSession();
                         if (session) {
-                            const { data: profile } = await supabase
-                                .from('profiles')
-                                .select('*')
-                                .eq('id', session.user.id)
-                                .single();
-                            
+                            const { data: profile } = await _getSupabase().from('profiles').select('*').eq('id', session.user.id).single();
                             if (profile) {
                                 _currentUser = { ...session.user, ...profile };
-                                if (profile.role === 'admin') {
-                                    this.showAdminDashboard();
-                                } else {
-                                    const { data: business } = await supabase
-                                        .from('businesses')
-                                        .select('*')
-                                        .eq('owner_id', session.user.id)
-                                        .single();
-                                    
-                                    if (business) {
-                                        _currentUser.business = business;
-                                        this.showBusinessDashboard();
-                                    }
-                                }
+                                if (profile.role === 'admin') this.showAdminDashboard();
                             }
                         }
-                    } catch (error) {
-                        console.error('Auth state check failed:', error);
-                    }
+                    } catch (error) { console.error('Auth state check failed:', error); }
                 }
             };
         })();
         
-        // Initialize when DOM is ready
+        // Initialize
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => window.app.init());
         } else {
             window.app.init();
         }
         
-        // Close modals when clicking outside
+        // Modal close on outside click
         window.onclick = function(event) {
-            if (event.target.id === 'loginModal') {
-                window.app.closeLogin();
-            } else if (event.target.id === 'actionModal') {
-                window.app.closeActionModal();
-            }
-        }
-        
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
+            if (event.target.id === 'loginModal') window.app.closeLogin();
+            else if (event.target.id === 'actionModal') window.app.closeActionModal();
+        };
     </script>
 </body>
 </html>
