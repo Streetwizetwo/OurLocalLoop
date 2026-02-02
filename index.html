@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Load Supabase first -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Inter', sans-serif; }
@@ -46,13 +48,11 @@
             background: linear-gradient(135deg, var(--secondary) 0%, #2563eb 100%);
         }
         
-        /* Custom scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* Animation classes */
         .fade-in { animation: fadeIn 0.5s ease-in; }
         .slide-up { animation: slideUp 0.3s ease-out; }
         
@@ -64,6 +64,20 @@
         @keyframes slideUp {
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #10b981;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -88,7 +102,7 @@
                         <a href="#features" class="text-gray-700 hover:text-green-600 font-medium px-3 py-2">Features</a>
                         <a href="#businesses" class="text-gray-700 hover:text-green-600 font-medium px-3 py-2">For Businesses</a>
                         <a href="#customers" class="text-gray-700 hover:text-green-600 font-medium px-3 py-2">For Customers</a>
-                        <button onclick="showLogin()" class="btn-primary text-white px-6 py-2 rounded-lg font-medium">
+                        <button onclick="window.app.showLogin()" class="btn-primary text-white px-6 py-2 rounded-lg font-medium">
                             Admin Login
                         </button>
                     </div>
@@ -109,31 +123,19 @@
                     </p>
                     
                     <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-                        <button onclick="showLogin()" class="btn-primary text-white px-8 py-4 rounded-xl text-lg font-semibold">
+                        <button onclick="window.app.showLogin()" class="btn-primary text-white px-8 py-4 rounded-xl text-lg font-semibold">
                             <i class="fas fa-sign-in-alt mr-2"></i>Business Portal Login
                         </button>
-                        <button onclick="showCustomerPortal()" class="bg-white text-gray-800 border-2 border-green-500 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-green-50">
+                        <button onclick="window.app.showCustomerPortal()" class="bg-white text-gray-800 border-2 border-green-500 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-green-50">
                             <i class="fas fa-user mr-2"></i>Customer Portal
                         </button>
                     </div>
                     
-                    <!-- Stats -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                    <!-- Live Stats from Supabase -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto" id="publicStats">
                         <div class="bg-white p-6 rounded-2xl shadow-lg">
-                            <div class="text-3xl font-bold text-green-600 mb-2">15+</div>
-                            <div class="text-gray-600">Local Businesses</div>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-lg">
-                            <div class="text-3xl font-bold text-blue-600 mb-2">2,850</div>
-                            <div class="text-gray-600">Active Users</div>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-lg">
-                            <div class="text-3xl font-bold text-purple-600 mb-2">R250K+</div>
-                            <div class="text-gray-600">Monthly Circulation</div>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-lg">
-                            <div class="text-3xl font-bold text-yellow-600 mb-2">98%</div>
-                            <div class="text-gray-600">Satisfaction Rate</div>
+                            <div class="loading-spinner mx-auto mb-2"></div>
+                            <div class="text-gray-600">Loading...</div>
                         </div>
                     </div>
                 </div>
@@ -204,25 +206,25 @@
                     </div>
                     <h3 class="text-xl font-bold text-gray-900">Our Local Loop</h3>
                 </div>
-                <button onclick="closeLogin()" class="text-gray-400 hover:text-gray-600">
+                <button onclick="window.app.closeLogin()" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-2xl"></i>
                 </button>
             </div>
             
             <div class="mb-6">
                 <div class="flex space-x-4 mb-4">
-                    <button onclick="setLoginType('admin')" id="adminTab" 
+                    <button onclick="window.app.setLoginType('admin')" id="adminTab" 
                             class="flex-1 py-3 text-center font-medium rounded-lg border-2 border-green-500 bg-green-50 text-green-700">
                         Admin Portal
                     </button>
-                    <button onclick="setLoginType('business')" id="businessTab"
+                    <button onclick="window.app.setLoginType('business')" id="businessTab"
                             class="flex-1 py-3 text-center font-medium rounded-lg border-2 border-gray-300 text-gray-600 hover:border-green-300">
                         Business Portal
                     </button>
                 </div>
             </div>
             
-            <form id="loginForm" onsubmit="return handleLogin(event)">
+            <form id="loginForm" onsubmit="return window.app.handleLogin(event)">
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
@@ -239,38 +241,16 @@
                     </div>
                     
                     <button type="submit" id="loginButton"
-                            class="w-full btn-primary text-white font-semibold py-3 rounded-lg mt-2">
-                        <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                            class="w-full btn-primary text-white font-semibold py-3 rounded-lg mt-2 flex items-center justify-center">
+                        <span id="loginBtnText"><i class="fas fa-sign-in-alt mr-2"></i> Sign In</span>
+                        <div id="loginSpinner" class="loading-spinner hidden"></div>
                     </button>
                 </div>
             </form>
             
-            <!-- Demo Accounts -->
-            <div class="mt-8 pt-6 border-t border-gray-200">
-                <h4 class="text-sm font-medium text-gray-700 mb-3">Demo Admin Accounts</h4>
-                <div class="space-y-2" id="demoAccounts">
-                    <div class="text-sm bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition"
-                         onclick="fillLogin('johan@ourlocalloop.co.za', 'Johan@123')">
-                        <div class="font-medium text-gray-900">Johan</div>
-                        <div class="text-gray-600">johan@ourlocalloop.co.za</div>
-                        <div class="text-gray-500 text-xs">Password: Johan@123</div>
-                    </div>
-                    <div class="text-sm bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition"
-                         onclick="fillLogin('dean@ourlocalloop.co.za', 'Dean@123')">
-                        <div class="font-medium text-gray-900">Dean</div>
-                        <div class="text-gray-600">dean@ourlocalloop.co.za</div>
-                        <div class="text-gray-500 text-xs">Password: Dean@123</div>
-                    </div>
-                    <div class="text-sm bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition"
-                         onclick="fillLogin('tahir@ourlocalloop.co.za', 'Tahir@123')">
-                        <div class="font-medium text-gray-900">Tahir</div>
-                        <div class="text-gray-600">tahir@ourlocalloop.co.za</div>
-                        <div class="text-gray-500 text-xs">Password: Tahir@123</div>
-                    </div>
-                </div>
-                
-                <div class="text-center mt-6">
-                    <button onclick="showCustomerPortal()" class="text-sm text-green-600 hover:text-green-500 font-medium">
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <div class="text-center">
+                    <button onclick="window.app.showLanding()" class="text-sm text-green-600 hover:text-green-500 font-medium">
                         <i class="fas fa-arrow-left mr-2"></i> Back to Main Site
                     </button>
                 </div>
@@ -280,7 +260,6 @@
 
     <!-- Admin Dashboard -->
     <div id="adminDashboard" class="hidden">
-        <!-- Top Navigation -->
         <nav class="bg-white shadow-lg">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
@@ -306,7 +285,7 @@
                                 <div class="text-xs text-gray-500">Administrator</div>
                             </div>
                         </div>
-                        <button onclick="logout()" 
+                        <button onclick="window.app.logout()" 
                                 class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition">
                             <i class="fas fa-sign-out-alt mr-2"></i>Logout
                         </button>
@@ -315,9 +294,7 @@
             </div>
         </nav>
 
-        <!-- Main Dashboard -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <!-- Welcome Banner -->
             <div class="bg-gradient-to-r from-green-500 via-green-600 to-blue-500 rounded-2xl shadow-xl p-8 text-white mb-8">
                 <div class="flex justify-between items-center">
                     <div>
@@ -330,187 +307,48 @@
                 </div>
             </div>
 
-            <!-- Quick Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Live Stats from Supabase -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="dashboardStats">
                 <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600">
-                            <i class="fas fa-store text-white text-xl"></i>
-                        </div>
-                        <div class="flex items-center text-green-600 text-sm font-medium">
-                            <i class="fas fa-arrow-up mr-1"></i>+3
-                        </div>
-                    </div>
-                    <div>
-                        <div class="text-3xl font-bold text-gray-900 mb-1">15</div>
-                        <div class="text-sm text-gray-500">Connected Businesses</div>
-                    </div>
-                </div>
-                
-                <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600">
-                            <i class="fas fa-users text-white text-xl"></i>
-                        </div>
-                        <div class="flex items-center text-green-600 text-sm font-medium">
-                            <i class="fas fa-arrow-up mr-1"></i>+5%
-                        </div>
-                    </div>
-                    <div>
-                        <div class="text-3xl font-bold text-gray-900 mb-1">2,850</div>
-                        <div class="text-sm text-gray-500">Active Users</div>
-                    </div>
-                </div>
-                
-                <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600">
-                            <i class="fas fa-qrcode text-white text-xl"></i>
-                        </div>
-                        <div class="flex items-center text-green-600 text-sm font-medium">
-                            <i class="fas fa-arrow-up mr-1"></i>+12%
-                        </div>
-                    </div>
-                    <div>
-                        <div class="text-3xl font-bold text-gray-900 mb-1">1,247</div>
-                        <div class="text-sm text-gray-500">Monthly Redemptions</div>
-                    </div>
-                </div>
-                
-                <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600">
-                            <i class="fas fa-money-bill-wave text-white text-xl"></i>
-                        </div>
-                        <div class="flex items-center text-green-600 text-sm font-medium">
-                            <i class="fas fa-arrow-up mr-1"></i>+18%
-                        </div>
-                    </div>
-                    <div>
-                        <div class="text-3xl font-bold text-gray-900 mb-1">R9,850</div>
-                        <div class="text-sm text-gray-500">Platform Revenue</div>
+                    <div class="flex items-center justify-center h-20">
+                        <div class="loading-spinner"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Dashboard Content -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Left Column -->
                 <div class="lg:col-span-2 space-y-8">
-                    <!-- Network Overview -->
+                    <!-- Live Business Network -->
                     <div class="bg-white rounded-xl shadow-lg p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Nottingham Road Network</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200">
-                                <div class="flex items-center">
-                                    <div class="p-2 bg-green-500 rounded-lg">
-                                        <i class="fas fa-coffee text-white"></i>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="font-bold text-gray-900">Coffee Shops</div>
-                                        <div class="text-sm text-gray-600">3 businesses • 450 redemptions</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200">
-                                <div class="flex items-center">
-                                    <div class="p-2 bg-blue-500 rounded-lg">
-                                        <i class="fas fa-utensils text-white"></i>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="font-bold text-gray-900">Restaurants</div>
-                                        <div class="text-sm text-gray-600">4 businesses • 620 redemptions</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl border border-purple-200">
-                                <div class="flex items-center">
-                                    <div class="p-2 bg-purple-500 rounded-lg">
-                                        <i class="fas fa-bed text-white"></i>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="font-bold text-gray-900">Accommodation</div>
-                                        <div class="text-sm text-gray-600">3 businesses • 280 redemptions</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="p-4 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl border border-yellow-200">
-                                <div class="flex items-center">
-                                    <div class="p-2 bg-yellow-500 rounded-lg">
-                                        <i class="fas fa-shopping-bag text-white"></i>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="font-bold text-gray-900">Retail</div>
-                                        <div class="text-sm text-gray-600">5 businesses • 890 redemptions</div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-900">Nottingham Road Network</h3>
+                            <span class="text-sm text-gray-500" id="lastUpdated"></span>
+                        </div>
+                        <div id="businessCategories" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="text-center py-8 text-gray-500">Loading businesses...</div>
                         </div>
                     </div>
 
-                    <!-- Recent Activity -->
+                    <!-- Live Activity Feed -->
                     <div class="bg-white rounded-xl shadow-lg p-6">
                         <div class="flex items-center justify-between mb-6">
                             <h3 class="text-lg font-semibold text-gray-900">Recent Network Activity</h3>
-                            <button class="text-sm font-medium text-green-600 hover:text-green-500">
-                                View All <i class="fas fa-arrow-right ml-1"></i>
+                            <button onclick="window.app.loadRecentActivity()" class="text-sm font-medium text-green-600 hover:text-green-500">
+                                <i class="fas fa-sync-alt mr-1"></i> Refresh
                             </button>
                         </div>
-                        <div class="space-y-4">
-                            <div class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
-                                <div class="p-2 rounded-full bg-green-100">
-                                    <i class="fas fa-check text-green-600"></i>
-                                </div>
-                                <div class="ml-4 flex-1">
-                                    <div class="font-medium text-gray-900">Coffee Connection</div>
-                                    <div class="text-sm text-gray-500">Redeemed R50 voucher from Midlands Lodge</div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="font-semibold text-gray-900">R50</div>
-                                    <div class="text-xs text-gray-400">2 min ago</div>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
-                                <div class="p-2 rounded-full bg-blue-100">
-                                    <i class="fas fa-plus text-blue-600"></i>
-                                </div>
-                                <div class="ml-4 flex-1">
-                                    <div class="font-medium text-gray-900">Midlands Lodge</div>
-                                    <div class="text-sm text-gray-500">New business joined the network</div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-xs text-gray-400">15 min ago</div>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
-                                <div class="p-2 rounded-full bg-yellow-100">
-                                    <i class="fas fa-bullhorn text-yellow-600"></i>
-                                </div>
-                                <div class="ml-4 flex-1">
-                                    <div class="font-medium text-gray-900">Artisan Market</div>
-                                    <div class="text-sm text-gray-500">Launched weekend campaign</div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="font-semibold text-gray-900">R2,000</div>
-                                    <div class="text-xs text-gray-400">1 hour ago</div>
-                                </div>
-                            </div>
+                        <div id="activityFeed" class="space-y-4">
+                            <div class="text-center py-4 text-gray-500">Loading activity...</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Column -->
                 <div class="space-y-8">
                     <!-- Quick Actions -->
                     <div class="bg-white rounded-xl shadow-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
                         <div class="space-y-4">
-                            <button onclick="showActionModal('addBusiness')"
+                            <button onclick="window.app.showActionModal('addBusiness')"
                                     class="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition group">
                                 <div class="flex items-center">
                                     <div class="p-2 rounded-lg bg-blue-100 group-hover:bg-blue-200">
@@ -524,7 +362,7 @@
                                 <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-600"></i>
                             </button>
                             
-                            <button onclick="showActionModal('createCampaign')"
+                            <button onclick="window.app.showActionModal('createCampaign')"
                                     class="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition group">
                                 <div class="flex items-center">
                                     <div class="p-2 rounded-lg bg-green-100 group-hover:bg-green-200">
@@ -538,7 +376,7 @@
                                 <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-600"></i>
                             </button>
                             
-                            <button onclick="showActionModal('generateReport')"
+                            <button onclick="window.app.showActionModal('generateReport')"
                                     class="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition group">
                                 <div class="flex items-center">
                                     <div class="p-2 rounded-lg bg-purple-100 group-hover:bg-purple-200">
@@ -551,31 +389,17 @@
                                 </div>
                                 <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-600"></i>
                             </button>
-                            
-                            <button onclick="showActionModal('processSettlements')"
-                                    class="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition group">
-                                <div class="flex items-center">
-                                    <div class="p-2 rounded-lg bg-yellow-100 group-hover:bg-yellow-200">
-                                        <i class="fas fa-money-check-alt text-yellow-600"></i>
-                                    </div>
-                                    <div class="ml-4 text-left">
-                                        <div class="font-medium text-gray-900">Process Settlements</div>
-                                        <div class="text-sm text-gray-500">Business payouts</div>
-                                    </div>
-                                </div>
-                                <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-600"></i>
-                            </button>
                         </div>
                     </div>
 
-                    <!-- System Status -->
+                    <!-- Live System Status -->
                     <div class="bg-white rounded-xl shadow-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-6">System Status</h3>
-                        <div class="space-y-4">
+                        <div class="space-y-4" id="systemStatus">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
                                     <i class="fas fa-database text-blue-500 mr-3"></i>
-                                    <span class="text-gray-700">Database</span>
+                                    <span class="text-gray-700">Supabase Connection</span>
                                 </div>
                                 <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
                                     Connected
@@ -584,18 +408,8 @@
                             
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
-                                    <i class="fas fa-server text-purple-500 mr-3"></i>
-                                    <span class="text-gray-700">API Server</span>
-                                </div>
-                                <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                    Operational
-                                </span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <i class="fas fa-qrcode text-green-500 mr-3"></i>
-                                    <span class="text-gray-700">QR Service</span>
+                                    <i class="fas fa-sync-alt text-green-500 mr-3"></i>
+                                    <span class="text-gray-700">Real-time Updates</span>
                                 </div>
                                 <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
                                     Active
@@ -604,10 +418,10 @@
                             
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
-                                    <i class="fas fa-sync-alt text-yellow-500 mr-3"></i>
+                                    <i class="fas fa-clock text-yellow-500 mr-3"></i>
                                     <span class="text-gray-700">Last Sync</span>
                                 </div>
-                                <span class="text-sm text-gray-600">Today, 02:00 AM</span>
+                                <span class="text-sm text-gray-600" id="lastSyncTime">Just now</span>
                             </div>
                         </div>
                     </div>
@@ -616,9 +430,8 @@
         </div>
     </div>
 
-    <!-- Business Dashboard (Simplified) -->
+    <!-- Business Dashboard -->
     <div id="businessDashboard" class="hidden">
-        <!-- Similar structure to admin dashboard but for businesses -->
         <div class="bg-gradient-to-br from-blue-50 to-white min-h-screen p-8">
             <div class="max-w-6xl mx-auto">
                 <div class="bg-white rounded-2xl shadow-xl p-8">
@@ -628,37 +441,38 @@
                                 <i class="fas fa-store text-white text-xl"></i>
                             </div>
                             <div>
-                                <h2 class="text-2xl font-bold text-gray-900">Coffee Connection</h2>
+                                <h2 class="text-2xl font-bold text-gray-900" id="businessName">My Business</h2>
                                 <p class="text-gray-600">Business Portal Dashboard</p>
                             </div>
                         </div>
-                        <button onclick="logout()" class="px-4 py-2 text-gray-600 hover:text-gray-900">
+                        <button onclick="window.app.logout()" class="px-4 py-2 text-gray-600 hover:text-gray-900">
                             <i class="fas fa-sign-out-alt mr-2"></i>Logout
                         </button>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" id="businessStats">
                         <div class="bg-green-50 p-6 rounded-xl border border-green-200">
-                            <div class="text-3xl font-bold text-green-700 mb-2">45</div>
-                            <div class="text-gray-600">Today's Redemptions</div>
-                        </div>
-                        <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
-                            <div class="text-3xl font-bold text-blue-700 mb-2">R2,250</div>
-                            <div class="text-gray-600">Today's Revenue</div>
-                        </div>
-                        <div class="bg-purple-50 p-6 rounded-xl border border-purple-200">
-                            <div class="text-3xl font-bold text-purple-700 mb-2">127</div>
-                            <div class="text-gray-600">Active Vouchers</div>
+                            <div class="loading-spinner mx-auto"></div>
                         </div>
                     </div>
                     
-                    <div class="text-center py-12">
-                        <i class="fas fa-building text-6xl text-gray-300 mb-4"></i>
-                        <h3 class="text-xl font-semibold text-gray-700 mb-2">Business Portal</h3>
-                        <p class="text-gray-500">Full business dashboard coming soon...</p>
-                        <button onclick="logout()" class="mt-6 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg">
-                            Return to Admin Login
-                        </button>
+                    <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Generate Customer Voucher</h3>
+                        <div class="flex gap-4">
+                            <input type="number" id="voucherAmount" placeholder="Amount (R)" 
+                                   class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            <button onclick="window.app.generateVoucher()" 
+                                    class="btn-primary text-white px-6 py-3 rounded-lg font-medium">
+                                <i class="fas fa-qrcode mr-2"></i> Generate QR
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-gray-200 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">My Vouchers</h3>
+                        <div id="myVouchers" class="space-y-2">
+                            <div class="text-center py-4 text-gray-500">Loading vouchers...</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -668,7 +482,6 @@
     <!-- Customer Portal -->
     <div id="customerPortal" class="hidden">
         <div class="min-h-screen bg-gradient-to-b from-green-50 to-white">
-            <!-- Customer Portal content would go here -->
             <div class="max-w-4xl mx-auto p-8">
                 <div class="text-center mb-12">
                     <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -678,15 +491,17 @@
                     <p class="text-gray-600">Discover and redeem rewards at Nottingham Road businesses</p>
                 </div>
                 
-                <div class="bg-white rounded-2xl shadow-xl p-8">
-                    <div class="text-center py-12">
-                        <i class="fas fa-mobile-alt text-6xl text-gray-300 mb-6"></i>
-                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Mobile App Coming Soon!</h3>
-                        <p class="text-gray-600 mb-8">Scan QR codes at participating businesses to earn and redeem rewards.</p>
-                        <button onclick="showLanding()" class="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg text-lg font-semibold">
-                            <i class="fas fa-arrow-left mr-2"></i> Back to Home
-                        </button>
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Available Businesses</h2>
+                    <div id="customerBusinessList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="text-center py-8 text-gray-500">Loading businesses...</div>
                     </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="window.app.showLanding()" class="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg text-lg font-semibold">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Home
+                    </button>
                 </div>
             </div>
         </div>
@@ -695,263 +510,901 @@
     <!-- Action Modals -->
     <div id="actionModal" class="hidden fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 slide-up">
-            <div id="modalContent">
-                <!-- Modal content will be inserted here -->
-            </div>
+            <div id="modalContent"></div>
         </div>
     </div>
 
+    <!-- Main Application Script -->
     <script>
-        // Application State
-        let currentUser = null;
-        let loginType = 'admin';
-
-        // Admin credentials
-        const adminUsers = {
-            'johan@ourlocalloop.co.za': { password: 'Johan@123', name: 'Johan' },
-            'dean@ourlocalloop.co.za': { password: 'Dean@123', name: 'Dean' },
-            'tahir@ourlocalloop.co.za': { password: 'Tahir@123', name: 'Tahir' }
-        };
-
-        // Business credentials (demo)
-        const businessUsers = {
-            'coffee@ourlocalloop.co.za': { password: 'Coffee123', name: 'Coffee Connection' },
-            'lodge@ourlocalloop.co.za': { password: 'Lodge123', name: 'Midlands Lodge' }
-        };
-
-        // Navigation Functions
-        function showLogin() {
-            document.getElementById('loginModal').classList.remove('hidden');
-            setLoginType('admin');
-        }
-
-        function closeLogin() {
-            document.getElementById('loginModal').classList.add('hidden');
-        }
-
-        function setLoginType(type) {
-            loginType = type;
+        // Application Module - wrapped to avoid global namespace pollution
+        window.app = (function() {
+            'use strict';
             
-            // Update tabs
-            document.getElementById('adminTab').className = type === 'admin' 
-                ? 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-green-500 bg-green-50 text-green-700'
-                : 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-gray-300 text-gray-600 hover:border-green-300';
+            // Private variables
+            let _supabaseClient = null;
+            let _currentUser = null;
+            let _loginType = 'admin';
+            let _realtimeSubscription = null;
             
-            document.getElementById('businessTab').className = type === 'business' 
-                ? 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-green-500 bg-green-50 text-green-700'
-                : 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-gray-300 text-gray-600 hover:border-green-300';
+            // Supabase Configuration
+            const SUPABASE_URL = 'https://hwbbtuijwvfhuakcsjqj.supabase.co';
+            const SUPABASE_KEY = 'sb_publishable_M1IrCztp4duxP7k6CylW2Q_C-KcAO95';
             
-            // Update button text
-            document.getElementById('loginButton').innerHTML = type === 'admin' 
-                ? '<i class="fas fa-sign-in-alt mr-2"></i> Admin Sign In'
-                : '<i class="fas fa-store mr-2"></i> Business Sign In';
-            
-            // Update demo accounts visibility
-            document.getElementById('demoAccounts').style.display = type === 'admin' ? 'block' : 'none';
-        }
-
-        function fillLogin(email, password) {
-            document.getElementById('loginEmail').value = email;
-            document.getElementById('loginPassword').value = password;
-        }
-
-        function handleLogin(event) {
-            event.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            let user = null;
-            
-            if (loginType === 'admin') {
-                user = adminUsers[email];
-                if (user && user.password === password) {
-                    currentUser = { ...user, email, type: 'admin' };
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Welcome back!',
-                        text: `Logged in as ${user.name}`,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                    
-                    setTimeout(() => {
-                        closeLogin();
-                        document.getElementById('landingPage').classList.add('hidden');
-                        document.getElementById('adminDashboard').classList.remove('hidden');
-                        document.getElementById('currentAdmin').textContent = user.name;
-                        document.getElementById('adminWelcome').textContent = `Welcome, ${user.name}!`;
-                    }, 1600);
-                    return true;
-                }
-            } else if (loginType === 'business') {
-                user = businessUsers[email];
-                if (user && user.password === password) {
-                    currentUser = { ...user, email, type: 'business' };
-                    
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Welcome!',
-                        text: `Logged in to ${user.name}`,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                    
-                    setTimeout(() => {
-                        closeLogin();
-                        document.getElementById('landingPage').classList.add('hidden');
-                        document.getElementById('businessDashboard').classList.remove('hidden');
-                    }, 1600);
-                    return true;
+            // Initialize Supabase Client
+            function _initSupabase() {
+                try {
+                    if (window.supabase && window.supabase.createClient) {
+                        _supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                        console.log('Supabase initialized successfully');
+                        return true;
+                    } else {
+                        console.error('Supabase library not loaded');
+                        return false;
+                    }
+                } catch (e) {
+                    console.error('Failed to initialize Supabase:', e);
+                    return false;
                 }
             }
             
-            Swal.fire({
-                icon: 'error',
-                title: 'Login Failed',
-                text: 'Invalid email or password',
-                timer: 2000,
-                showConfirmButton: false
-            });
-            return false;
-        }
-
-        function logout() {
-            Swal.fire({
-                title: 'Logout?',
-                text: 'Are you sure you want to logout?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#10b981',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, logout'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    currentUser = null;
-                    localStorage.removeItem('currentUser');
+            // Wait for Supabase to be ready
+            function _waitForSupabase(callback, maxAttempts = 50) {
+                let attempts = 0;
+                const checkInterval = setInterval(() => {
+                    attempts++;
+                    if (_initSupabase()) {
+                        clearInterval(checkInterval);
+                        if (callback) callback();
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(checkInterval);
+                        console.error('Failed to load Supabase after ' + maxAttempts + ' attempts');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Connection Error',
+                            text: 'Failed to connect to database. Please refresh the page.'
+                        });
+                    }
+                }, 100);
+            }
+            
+            // Getters
+            function _getSupabase() {
+                if (!_supabaseClient) {
+                    _initSupabase();
+                }
+                return _supabaseClient;
+            }
+            
+            // Public API
+            return {
+                // Initialize the application
+                init: function() {
+                    _waitForSupabase(() => {
+                        this.loadPublicStats();
+                        this.checkAuthState();
+                    });
+                },
+                
+                // Navigation Functions
+                showLogin: function() {
+                    document.getElementById('loginModal').classList.remove('hidden');
+                    this.setLoginType('admin');
+                },
+                
+                closeLogin: function() {
+                    document.getElementById('loginModal').classList.add('hidden');
+                },
+                
+                setLoginType: function(type) {
+                    _loginType = type;
                     
-                    // Hide all dashboards
+                    document.getElementById('adminTab').className = type === 'admin' 
+                        ? 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-green-500 bg-green-50 text-green-700'
+                        : 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-gray-300 text-gray-600 hover:border-green-300';
+                    
+                    document.getElementById('businessTab').className = type === 'business' 
+                        ? 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-green-500 bg-green-50 text-green-700'
+                        : 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-gray-300 text-gray-600 hover:border-green-300';
+                    
+                    document.getElementById('loginBtnText').innerHTML = type === 'admin' 
+                        ? '<i class="fas fa-sign-in-alt mr-2"></i> Admin Sign In'
+                        : '<i class="fas fa-store mr-2"></i> Business Sign In';
+                },
+                
+                // Authentication Functions
+                handleLogin: async function(event) {
+                    event.preventDefault();
+                    
+                    const email = document.getElementById('loginEmail').value;
+                    const password = document.getElementById('loginPassword').value;
+                    
+                    document.getElementById('loginBtnText').classList.add('hidden');
+                    document.getElementById('loginSpinner').classList.remove('hidden');
+                    
+                    try {
+                        const supabase = _getSupabase();
+                        
+                        if (_loginType === 'admin') {
+                            const { data, error } = await supabase.auth.signInWithPassword({
+                                email: email,
+                                password: password
+                            });
+                            
+                            if (error) throw error;
+                            
+                            const { data: profile, error: profileError } = await supabase
+                                .from('profiles')
+                                .select('role, full_name')
+                                .eq('id', data.user.id)
+                                .single();
+                            
+                            if (profileError || profile.role !== 'admin') {
+                                await supabase.auth.signOut();
+                                throw new Error('Unauthorized access');
+                            }
+                            
+                            _currentUser = { ...data.user, ...profile, type: 'admin' };
+                            
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Welcome back!',
+                                text: `Logged in as ${profile.full_name}`,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            
+                            setTimeout(() => {
+                                this.closeLogin();
+                                this.showAdminDashboard();
+                            }, 1600);
+                            
+                        } else if (_loginType === 'business') {
+                            const { data, error } = await supabase.auth.signInWithPassword({
+                                email: email,
+                                password: password
+                            });
+                            
+                            if (error) throw error;
+                            
+                            const { data: business, error: bizError } = await supabase
+                                .from('businesses')
+                                .select('*, owner_id')
+                                .eq('owner_id', data.user.id)
+                                .single();
+                            
+                            if (bizError) throw new Error('No business associated with this account');
+                            
+                            _currentUser = { ...data.user, business, type: 'business' };
+                            
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Welcome!',
+                                text: `Logged in to ${business.name}`,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            
+                            setTimeout(() => {
+                                this.closeLogin();
+                                this.showBusinessDashboard();
+                            }, 1600);
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Login Failed',
+                            text: error.message || 'Invalid credentials',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    } finally {
+                        document.getElementById('loginBtnText').classList.remove('hidden');
+                        document.getElementById('loginSpinner').classList.add('hidden');
+                    }
+                    
+                    return false;
+                },
+                
+                logout: async function() {
+                    const result = await Swal.fire({
+                        title: 'Logout?',
+                        text: 'Are you sure you want to logout?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#10b981',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Yes, logout'
+                    });
+                    
+                    if (result.isConfirmed) {
+                        const supabase = _getSupabase();
+                        await supabase.auth.signOut();
+                        
+                        if (_realtimeSubscription) {
+                            await supabase.removeChannel(_realtimeSubscription);
+                            _realtimeSubscription = null;
+                        }
+                        
+                        _currentUser = null;
+                        this.showLanding();
+                    }
+                },
+                
+                // Dashboard Functions
+                showLanding: function() {
                     document.getElementById('adminDashboard').classList.add('hidden');
                     document.getElementById('businessDashboard').classList.add('hidden');
                     document.getElementById('customerPortal').classList.add('hidden');
-                    
-                    // Show landing page
-                    document.getElementById('landingPage').classList.remove('hidden');
                     document.getElementById('loginModal').classList.add('hidden');
-                }
-            });
-        }
-
-        function showCustomerPortal() {
-            document.getElementById('landingPage').classList.add('hidden');
-            document.getElementById('loginModal').classList.add('hidden');
-            document.getElementById('customerPortal').classList.remove('hidden');
-        }
-
-        function showLanding() {
-            document.getElementById('adminDashboard').classList.add('hidden');
-            document.getElementById('businessDashboard').classList.add('hidden');
-            document.getElementById('customerPortal').classList.add('hidden');
-            document.getElementById('loginModal').classList.add('hidden');
-            document.getElementById('landingPage').classList.remove('hidden');
-        }
-
-        function showActionModal(action) {
-            let modalContent = '';
-            let title = '';
-            
-            switch(action) {
-                case 'addBusiness':
-                    title = 'Add New Business';
-                    modalContent = `
-                        <div class="space-y-4">
-                            <input type="text" placeholder="Business Name" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                            <input type="email" placeholder="Email Address" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                                <option>Select Category</option>
-                                <option>Café / Coffee Shop</option>
-                                <option>Restaurant</option>
-                                <option>Accommodation</option>
-                                <option>Retail</option>
-                                <option>Experience</option>
-                            </select>
-                            <button class="w-full btn-primary text-white font-semibold py-3 rounded-lg mt-4">
-                                <i class="fas fa-plus mr-2"></i> Add Business
-                            </button>
-                        </div>
-                    `;
-                    break;
-                    
-                case 'createCampaign':
-                    title = 'Create Campaign';
-                    modalContent = `
-                        <div class="space-y-4">
-                            <input type="text" placeholder="Campaign Name" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                            <textarea placeholder="Description" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg"></textarea>
-                            <input type="number" placeholder="Budget (R)" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                            <button class="w-full btn-primary text-white font-semibold py-3 rounded-lg mt-4">
-                                <i class="fas fa-bullhorn mr-2"></i> Launch Campaign
-                            </button>
-                        </div>
-                    `;
-                    break;
-                    
-                default:
-                    title = 'Action';
-                    modalContent = `<p class="text-gray-600">Action functionality coming soon...</p>`;
-            }
-            
-            document.getElementById('modalContent').innerHTML = `
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-900">${title}</h3>
-                    <button onclick="closeActionModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times text-2xl"></i>
-                    </button>
-                </div>
-                ${modalContent}
-            `;
-            
-            document.getElementById('actionModal').classList.remove('hidden');
-        }
-
-        function closeActionModal() {
-            document.getElementById('actionModal').classList.add('hidden');
-        }
-
-        // Check for saved user on load
-        window.onload = function() {
-            const savedUser = localStorage.getItem('currentUser');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                if (currentUser.type === 'admin') {
+                    document.getElementById('landingPage').classList.remove('hidden');
+                },
+                
+                showAdminDashboard: async function() {
                     document.getElementById('landingPage').classList.add('hidden');
                     document.getElementById('adminDashboard').classList.remove('hidden');
-                    document.getElementById('currentAdmin').textContent = currentUser.name;
-                    document.getElementById('adminWelcome').textContent = `Welcome, ${currentUser.name}!`;
+                    document.getElementById('currentAdmin').textContent = _currentUser.full_name || _currentUser.email;
+                    document.getElementById('adminWelcome').textContent = `Welcome, ${_currentUser.full_name || 'Admin'}!`;
+                    
+                    await this.loadDashboardStats();
+                    await this.loadBusinessCategories();
+                    await this.loadRecentActivity();
+                    this.subscribeToRealtimeUpdates();
+                },
+                
+                showBusinessDashboard: async function() {
+                    document.getElementById('landingPage').classList.add('hidden');
+                    document.getElementById('businessDashboard').classList.remove('hidden');
+                    document.getElementById('businessName').textContent = _currentUser.business.name;
+                    
+                    await this.loadBusinessStats();
+                    await this.loadMyVouchers();
+                },
+                
+                showCustomerPortal: async function() {
+                    document.getElementById('landingPage').classList.add('hidden');
+                    document.getElementById('customerPortal').classList.remove('hidden');
+                    await this.loadPublicBusinesses();
+                },
+                
+                // Data Loading Functions
+                loadDashboardStats: async function() {
+                    try {
+                        const supabase = _getSupabase();
+                        
+                        const { count: businessCount } = await supabase
+                            .from('businesses')
+                            .select('*', { count: 'exact', head: true });
+                        
+                        const { count: userCount } = await supabase
+                            .from('profiles')
+                            .select('*', { count: 'exact', head: true });
+                        
+                        const startOfMonth = new Date();
+                        startOfMonth.setDate(1);
+                        const { count: redemptionCount } = await supabase
+                            .from('transactions')
+                            .select('*', { count: 'exact', head: true })
+                            .gte('created_at', startOfMonth.toISOString())
+                            .eq('type', 'redemption');
+                        
+                        const { data: transactions } = await supabase
+                            .from('transactions')
+                            .select('amount')
+                            .gte('created_at', startOfMonth.toISOString());
+                        
+                        const revenue = transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+                        
+                        const statsHtml = `
+                            <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600">
+                                        <i class="fas fa-store text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-3xl font-bold text-gray-900 mb-1">${businessCount || 0}</div>
+                                    <div class="text-sm text-gray-500">Connected Businesses</div>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600">
+                                        <i class="fas fa-users text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-3xl font-bold text-gray-900 mb-1">${userCount || 0}</div>
+                                    <div class="text-sm text-gray-500">Active Users</div>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600">
+                                        <i class="fas fa-qrcode text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-3xl font-bold text-gray-900 mb-1">${redemptionCount || 0}</div>
+                                    <div class="text-sm text-gray-500">Monthly Redemptions</div>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600">
+                                        <i class="fas fa-money-bill-wave text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-3xl font-bold text-gray-900 mb-1">R${revenue.toLocaleString()}</div>
+                                    <div class="text-sm text-gray-500">Monthly Revenue</div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        document.getElementById('dashboardStats').innerHTML = statsHtml;
+                        document.getElementById('lastSyncTime').textContent = new Date().toLocaleTimeString();
+                        
+                    } catch (error) {
+                        console.error('Error loading stats:', error);
+                    }
+                },
+                
+                loadBusinessCategories: async function() {
+                    try {
+                        const supabase = _getSupabase();
+                        const { data: businesses, error } = await supabase
+                            .from('businesses')
+                            .select('category');
+                        
+                        if (error) throw error;
+                        
+                        const categories = {};
+                        businesses.forEach(b => {
+                            categories[b.category] = (categories[b.category] || 0) + 1;
+                        });
+                        
+                        const categoryColors = {
+                            'cafe': 'green',
+                            'restaurant': 'blue',
+                            'accommodation': 'purple',
+                            'retail': 'yellow',
+                            'experience': 'pink'
+                        };
+                        
+                        const categoryIcons = {
+                            'cafe': 'coffee',
+                            'restaurant': 'utensils',
+                            'accommodation': 'bed',
+                            'retail': 'shopping-bag',
+                            'experience': 'star'
+                        };
+                        
+                        let html = '';
+                        for (const [cat, count] of Object.entries(categories)) {
+                            const color = categoryColors[cat] || 'gray';
+                            const icon = categoryIcons[cat] || 'store';
+                            
+                            html += `
+                                <div class="p-4 bg-gradient-to-r from-${color}-50 to-${color}-100 rounded-xl border border-${color}-200">
+                                    <div class="flex items-center">
+                                        <div class="p-2 bg-${color}-500 rounded-lg">
+                                            <i class="fas fa-${icon} text-white"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="font-bold text-gray-900 capitalize">${cat}</div>
+                                            <div class="text-sm text-gray-600">${count} businesses</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        document.getElementById('businessCategories').innerHTML = html || '<div class="text-gray-500">No businesses yet</div>';
+                        document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+                        
+                    } catch (error) {
+                        console.error('Error loading categories:', error);
+                    }
+                },
+                
+                loadRecentActivity: async function(limit = 10) {
+                    try {
+                        const supabase = _getSupabase();
+                        const { data: activities, error } = await supabase
+                            .from('transactions')
+                            .select('*, businesses(name), profiles(full_name)')
+                            .order('created_at', { ascending: false })
+                            .limit(limit);
+                        
+                        if (error) throw error;
+                        
+                        let html = '';
+                        activities.forEach(activity => {
+                            const isRedemption = activity.type === 'redemption';
+                            const icon = isRedemption ? 'check' : 'plus';
+                            const color = isRedemption ? 'green' : 'blue';
+                            const businessName = activity.businesses?.name || 'Unknown';
+                            const timeAgo = this.getTimeAgo(new Date(activity.created_at));
+                            
+                            html += `
+                                <div class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition border-l-4 border-${color}-500">
+                                    <div class="p-2 rounded-full bg-${color}-100">
+                                        <i class="fas fa-${icon} text-${color}-600"></i>
+                                    </div>
+                                    <div class="ml-4 flex-1">
+                                        <div class="font-medium text-gray-900">${businessName}</div>
+                                        <div class="text-sm text-gray-500">
+                                            ${isRedemption ? 'Redeemed' : 'Issued'} voucher worth R${activity.amount}
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-xs text-gray-400">${timeAgo}</div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        document.getElementById('activityFeed').innerHTML = html || '<div class="text-gray-500">No recent activity</div>';
+                        
+                    } catch (error) {
+                        console.error('Error loading activity:', error);
+                    }
+                },
+                
+                loadBusinessStats: async function() {
+                    if (!_currentUser?.business?.id) return;
+                    
+                    try {
+                        const supabase = _getSupabase();
+                        const businessId = _currentUser.business.id;
+                        const today = new Date().toISOString().split('T')[0];
+                        
+                        const { count: todayRedemptions } = await supabase
+                            .from('transactions')
+                            .select('*', { count: 'exact', head: true })
+                            .eq('business_id', businessId)
+                            .eq('type', 'redemption')
+                            .gte('created_at', today);
+                        
+                        const { data: todayTrans } = await supabase
+                            .from('transactions')
+                            .select('amount')
+                            .eq('business_id', businessId)
+                            .gte('created_at', today);
+                        
+                        const revenue = todayTrans?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+                        
+                        const { count: activeVouchers } = await supabase
+                            .from('vouchers')
+                            .select('*', { count: 'exact', head: true })
+                            .eq('business_id', businessId)
+                            .eq('status', 'active');
+                        
+                        const html = `
+                            <div class="bg-green-50 p-6 rounded-xl border border-green-200">
+                                <div class="text-3xl font-bold text-green-700 mb-2">${todayRedemptions || 0}</div>
+                                <div class="text-gray-600">Today's Redemptions</div>
+                            </div>
+                            <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                                <div class="text-3xl font-bold text-blue-700 mb-2">R${revenue.toLocaleString()}</div>
+                                <div class="text-gray-600">Today's Revenue</div>
+                            </div>
+                            <div class="bg-purple-50 p-6 rounded-xl border border-purple-200">
+                                <div class="text-3xl font-bold text-purple-700 mb-2">${activeVouchers || 0}</div>
+                                <div class="text-gray-600">Active Vouchers</div>
+                            </div>
+                        `;
+                        
+                        document.getElementById('businessStats').innerHTML = html;
+                        
+                    } catch (error) {
+                        console.error('Error loading business stats:', error);
+                    }
+                },
+                
+                loadMyVouchers: async function() {
+                    if (!_currentUser?.business?.id) return;
+                    
+                    try {
+                        const supabase = _getSupabase();
+                        const { data: vouchers, error } = await supabase
+                            .from('vouchers')
+                            .select('*')
+                            .eq('business_id', _currentUser.business.id)
+                            .order('created_at', { ascending: false })
+                            .limit(10);
+                        
+                        if (error) throw error;
+                        
+                        let html = '';
+                        vouchers.forEach(voucher => {
+                            const statusColor = voucher.status === 'active' ? 'green' : 
+                                              voucher.status === 'redeemed' ? 'blue' : 'gray';
+                            
+                            html += `
+                                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <div class="font-semibold text-gray-900">R${voucher.amount} Voucher</div>
+                                        <div class="text-sm text-gray-500">Code: ${voucher.code}</div>
+                                    </div>
+                                    <span class="px-3 py-1 bg-${statusColor}-100 text-${statusColor}-800 rounded-full text-sm capitalize">
+                                        ${voucher.status}
+                                    </span>
+                                </div>
+                            `;
+                        });
+                        
+                        document.getElementById('myVouchers').innerHTML = html || '<div class="text-gray-500">No vouchers yet</div>';
+                        
+                    } catch (error) {
+                        console.error('Error loading vouchers:', error);
+                    }
+                },
+                
+                loadPublicBusinesses: async function() {
+                    try {
+                        const supabase = _getSupabase();
+                        const { data: businesses, error } = await supabase
+                            .from('businesses')
+                            .select('*, profiles(full_name)')
+                            .eq('status', 'active')
+                            .order('name');
+                        
+                        if (error) throw error;
+                        
+                        let html = '';
+                        businesses.forEach(biz => {
+                            html += `
+                                <div class="p-4 border border-gray-200 rounded-lg hover:shadow-md transition">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <h3 class="font-semibold text-gray-900">${biz.name}</h3>
+                                            <p class="text-sm text-gray-500 capitalize">${biz.category} • ${biz.location || 'Nottingham Road'}</p>
+                                        </div>
+                                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Open</span>
+                                    </div>
+                                    <p class="mt-2 text-sm text-gray-600">${biz.description || 'Join the network to earn rewards!'}</p>
+                                </div>
+                            `;
+                        });
+                        
+                        document.getElementById('customerBusinessList').innerHTML = html || '<div class="text-gray-500">No businesses found</div>';
+                        
+                    } catch (error) {
+                        console.error('Error loading businesses:', error);
+                    }
+                },
+                
+                loadPublicStats: async function() {
+                    try {
+                        const supabase = _getSupabase();
+                        const { count: businessCount } = await supabase
+                            .from('businesses')
+                            .select('*', { count: 'exact', head: true });
+                        
+                        const { count: userCount } = await supabase
+                            .from('profiles')
+                            .select('*', { count: 'exact', head: true });
+                        
+                        const { data: transactions } = await supabase
+                            .from('transactions')
+                            .select('amount');
+                        
+                        const totalCirculation = transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+                        
+                        const html = `
+                            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                                <div class="text-3xl font-bold text-green-600 mb-2">${businessCount || 0}</div>
+                                <div class="text-gray-600">Local Businesses</div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                                <div class="text-3xl font-bold text-blue-600 mb-2">${userCount || 0}</div>
+                                <div class="text-gray-600">Active Users</div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                                <div class="text-3xl font-bold text-purple-600 mb-2">R${(totalCirculation / 1000).toFixed(1)}K+</div>
+                                <div class="text-gray-600">Total Circulation</div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                                <div class="text-3xl font-bold text-yellow-600 mb-2">98%</div>
+                                <div class="text-gray-600">Satisfaction Rate</div>
+                            </div>
+                        `;
+                        
+                        document.getElementById('publicStats').innerHTML = html;
+                        
+                    } catch (error) {
+                        console.error('Error loading public stats:', error);
+                    }
+                },
+                
+                // Real-time Subscriptions
+                subscribeToRealtimeUpdates: function() {
+                    const supabase = _getSupabase();
+                    _realtimeSubscription = supabase
+                        .channel('public:transactions')
+                        .on('postgres_changes', 
+                            { event: 'INSERT', schema: 'public', table: 'transactions' },
+                            (payload) => {
+                                console.log('New transaction:', payload);
+                                this.loadRecentActivity();
+                                this.loadDashboardStats();
+                            }
+                        )
+                        .subscribe();
+                },
+                
+                // Action Modal Functions
+                showActionModal: function(action) {
+                    let modalContent = '';
+                    let title = '';
+                    
+                    switch(action) {
+                        case 'addBusiness':
+                            title = 'Add New Business';
+                            modalContent = `
+                                <form onsubmit="return window.app.submitNewBusiness(event)" class="space-y-4">
+                                    <input type="text" name="name" placeholder="Business Name" required
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                    <input type="email" name="email" placeholder="Owner Email" required
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                    <select name="category" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                        <option value="">Select Category</option>
+                                        <option value="cafe">Café / Coffee Shop</option>
+                                        <option value="restaurant">Restaurant</option>
+                                        <option value="accommodation">Accommodation</option>
+                                        <option value="retail">Retail</option>
+                                        <option value="experience">Experience</option>
+                                    </select>
+                                    <textarea name="description" placeholder="Description" rows="3" 
+                                              class="w-full px-4 py-3 border border-gray-300 rounded-lg"></textarea>
+                                    <button type="submit" class="w-full btn-primary text-white font-semibold py-3 rounded-lg">
+                                        <i class="fas fa-plus mr-2"></i> Add Business
+                                    </button>
+                                </form>
+                            `;
+                            break;
+                            
+                        case 'createCampaign':
+                            title = 'Create Campaign';
+                            modalContent = `
+                                <form onsubmit="return window.app.submitCampaign(event)" class="space-y-4">
+                                    <input type="text" name="name" placeholder="Campaign Name" required
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                    <textarea name="description" placeholder="Description" rows="3" 
+                                              class="w-full px-4 py-3 border border-gray-300 rounded-lg"></textarea>
+                                    <input type="number" name="budget" placeholder="Budget (R)" required
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                    <input type="date" name="end_date" required
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                    <button type="submit" class="w-full btn-primary text-white font-semibold py-3 rounded-lg">
+                                        <i class="fas fa-bullhorn mr-2"></i> Launch Campaign
+                                    </button>
+                                </form>
+                            `;
+                            break;
+                            
+                        default:
+                            title = 'Action';
+                            modalContent = `<p class="text-gray-600">Action functionality coming soon...</p>`;
+                    }
+                    
+                    document.getElementById('modalContent').innerHTML = `
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-gray-900">${title}</h3>
+                            <button onclick="window.app.closeActionModal()" class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times text-2xl"></i>
+                            </button>
+                        </div>
+                        ${modalContent}
+                    `;
+                    
+                    document.getElementById('actionModal').classList.remove('hidden');
+                },
+                
+                submitNewBusiness: async function(event) {
+                    event.preventDefault();
+                    const formData = new FormData(event.target);
+                    
+                    try {
+                        const supabase = _getSupabase();
+                        const tempPassword = Math.random().toString(36).slice(-8);
+                        
+                        const { data: authData, error: authError } = await supabase.auth.signUp({
+                            email: formData.get('email'),
+                            password: tempPassword
+                        });
+                        
+                        if (authError) throw authError;
+                        
+                        await supabase.from('profiles').insert({
+                            id: authData.user.id,
+                            role: 'business_owner',
+                            full_name: formData.get('name') + ' Owner'
+                        });
+                        
+                        const { error: bizError } = await supabase.from('businesses').insert({
+                            name: formData.get('name'),
+                            category: formData.get('category'),
+                            description: formData.get('description'),
+                            owner_id: authData.user.id,
+                            status: 'active'
+                        });
+                        
+                        if (bizError) throw bizError;
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Business Added!',
+                            text: `Temporary password: ${tempPassword}`,
+                            confirmButtonColor: '#10b981'
+                        });
+                        
+                        this.closeActionModal();
+                        this.loadBusinessCategories();
+                        
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.message
+                        });
+                    }
+                    
+                    return false;
+                },
+                
+                submitCampaign: async function(event) {
+                    event.preventDefault();
+                    const formData = new FormData(event.target);
+                    
+                    try {
+                        const supabase = _getSupabase();
+                        const { error } = await supabase.from('campaigns').insert({
+                            name: formData.get('name'),
+                            description: formData.get('description'),
+                            budget: parseFloat(formData.get('budget')),
+                            end_date: formData.get('end_date'),
+                            created_by: _currentUser.id,
+                            status: 'active'
+                        });
+                        
+                        if (error) throw error;
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Campaign Created!',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        
+                        this.closeActionModal();
+                        
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.message
+                        });
+                    }
+                    
+                    return false;
+                },
+                
+                generateVoucher: async function() {
+                    const amount = document.getElementById('voucherAmount').value;
+                    if (!amount || amount <= 0) {
+                        Swal.fire({ icon: 'warning', title: 'Please enter a valid amount' });
+                        return;
+                    }
+                    
+                    try {
+                        const supabase = _getSupabase();
+                        const code = 'OLL' + Math.random().toString(36).substring(2, 8).toUpperCase();
+                        
+                        const { error } = await supabase.from('vouchers').insert({
+                            business_id: _currentUser.business.id,
+                            amount: parseFloat(amount),
+                            code: code,
+                            status: 'active',
+                            created_by: _currentUser.id
+                        });
+                        
+                        if (error) throw error;
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Voucher Generated!',
+                            html: `<div class="text-2xl font-bold text-green-600 my-4">${code}</div><p>Show this code to customer</p>`,
+                            confirmButtonColor: '#10b981'
+                        });
+                        
+                        this.loadMyVouchers();
+                        document.getElementById('voucherAmount').value = '';
+                        
+                    } catch (error) {
+                        Swal.fire({ icon: 'error', title: 'Error', text: error.message });
+                    }
+                },
+                
+                closeActionModal: function() {
+                    document.getElementById('actionModal').classList.add('hidden');
+                },
+                
+                // Utility Functions
+                getTimeAgo: function(date) {
+                    const seconds = Math.floor((new Date() - date) / 1000);
+                    if (seconds < 60) return 'Just now';
+                    const minutes = Math.floor(seconds / 60);
+                    if (minutes < 60) return `${minutes}m ago`;
+                    const hours = Math.floor(minutes / 60);
+                    if (hours < 24) return `${hours}h ago`;
+                    const days = Math.floor(hours / 24);
+                    return `${days}d ago`;
+                },
+                
+                checkAuthState: async function() {
+                    try {
+                        const supabase = _getSupabase();
+                        const { data: { session } } = await supabase.auth.getSession();
+                        if (session) {
+                            const { data: profile } = await supabase
+                                .from('profiles')
+                                .select('*')
+                                .eq('id', session.user.id)
+                                .single();
+                            
+                            if (profile) {
+                                _currentUser = { ...session.user, ...profile };
+                                if (profile.role === 'admin') {
+                                    this.showAdminDashboard();
+                                } else {
+                                    const { data: business } = await supabase
+                                        .from('businesses')
+                                        .select('*')
+                                        .eq('owner_id', session.user.id)
+                                        .single();
+                                    
+                                    if (business) {
+                                        _currentUser.business = business;
+                                        this.showBusinessDashboard();
+                                    }
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Auth state check failed:', error);
+                    }
                 }
-            }
-            
-            // Close modals when clicking outside
-            window.onclick = function(event) {
-                if (event.target.id === 'loginModal' || event.target.id === 'actionModal') {
-                    closeLogin();
-                    closeActionModal();
-                }
+            };
+        })();
+        
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => window.app.init());
+        } else {
+            window.app.init();
+        }
+        
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.id === 'loginModal') {
+                window.app.closeLogin();
+            } else if (event.target.id === 'actionModal') {
+                window.app.closeActionModal();
             }
         }
-
+        
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             });
         });
