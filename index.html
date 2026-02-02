@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Local Loop | Nottingham Road Network</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Load Supabase first -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Poppins', sans-serif; }
+        
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #3b82f6;
+            --accent: #8b5cf6;
+        }
+        
+        .logo-gradient {
+            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .sidebar-item:hover { background: rgba(16, 185, 129, 0.1); }
+        .stat-card { 
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary);
+        }
+        .stat-card:hover { 
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.15);
+        }
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            transition: all 0.3s;
+        }
+        .btn-primary:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary) 0%, #2563eb 100%);
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        .slide-up { animation: slideUp 0.3s ease-out; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #10b981;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-green-50 min-h-screen">
+    <!-- Landing Page -->
+    <div id="landingPage" class="fade-in">
+        <!-- Navigation -->
+        <nav class="bg-white/80 backdrop-blur-sm shadow-sm fixed w-full z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-recycle text-white"></i>
+                            </div>
+                            <span class="text-xl font-bold">
+                                <span class="logo-gradient">Our Local Loop</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="#features" class="text-gray-700 hover:text-green-600 font-medium px-3 py-2">Features</a>
+                        <a href="#businesses" class="text-gray-700 hover:text-green-600 font-medium px-3 py-2">For Businesses</a>
+                        <a href="#customers" class="text-gray-700 hover:text-green-600 font-medium px-3 py-2">For Customers</a>
+                        <button onclick="window.app.showLogin()" class="btn-primary text-white px-6 py-2 rounded-lg font-medium">
+                            Admin Login
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center">
+                    <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+                        Connecting <span class="logo-gradient">Nottingham Road</span>
+                    </h1>
+                    <p class="text-xl text-gray-600 mb-10 max-w-3xl mx-auto">
+                        A community-driven rewards network that keeps local spending circulating between independent businesses. 
+                        Spend at one, get rewarded at another.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+                        <button onclick="window.app.showLogin()" class="btn-primary text-white px-8 py-4 rounded-xl text-lg font-semibold">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Business Portal Login
+                        </button>
+                        <button onclick="window.app.showCustomerPortal()" class="bg-white text-gray-800 border-2 border-green-500 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-green-50">
+                            <i class="fas fa-user mr-2"></i>Customer Portal
+                        </button>
+                    </div>
+                    
+                    <!-- Live Stats from Supabase -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto" id="publicStats">
+                        <div class="bg-white p-6 rounded-2xl shadow-lg">
+                            <div class="loading-spinner mx-auto mb-2"></div>
+                            <div class="text-gray-600">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section id="features" class="py-20 bg-white/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-4xl font-bold text-center text-gray-900 mb-16">How Our Local Loop Works</h2>
+                
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center p-8 bg-white rounded-2xl shadow-lg slide-up">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-store text-green-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">1. Businesses Join</h3>
+                        <p class="text-gray-600">Local businesses in Nottingham Road join the network with exclusive category rights.</p>
+                    </div>
+                    
+                    <div class="text-center p-8 bg-white rounded-2xl shadow-lg slide-up" style="animation-delay: 0.1s">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-qrcode text-blue-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">2. Customers Earn</h3>
+                        <p class="text-gray-600">Customers spend at one business and earn QR-based rewards for partner businesses.</p>
+                    </div>
+                    
+                    <div class="text-center p-8 bg-white rounded-2xl shadow-lg slide-up" style="animation-delay: 0.2s">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-sync-alt text-purple-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">3. Money Circulates</h3>
+                        <p class="text-gray-600">Spending stays within the local economy, boosting all participating businesses.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-white py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <div class="flex items-center justify-center space-x-2 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-recycle text-white"></i>
+                        </div>
+                        <span class="text-2xl font-bold">Our Local Loop</span>
+                    </div>
+                    <p class="text-gray-400 mb-8">Nottingham Road's Community Commerce Network</p>
+                    <div class="text-gray-500 text-sm">
+                        <p>© 2024 Our Local Loop. All rights reserved.</p>
+                        <p class="mt-2">Nottingham Road, KwaZulu-Natal, South Africa</p>
+                        <p class="mt-2">Email: hello@ourlocalloop.co.za | Phone: +27 33 XXX XXXX</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 slide-up">
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-recycle text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900">Our Local Loop</h3>
+                </div>
+                <button onclick="window.app.closeLogin()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <div class="flex space-x-4 mb-4">
+                    <button onclick="window.app.setLoginType('admin')" id="adminTab" 
+                            class="flex-1 py-3 text-center font-medium rounded-lg border-2 border-green-500 bg-green-50 text-green-700">
+                        Admin Portal
+                    </button>
+                    <button onclick="window.app.setLoginType('business')" id="businessTab"
+                            class="flex-1 py-3 text-center font-medium rounded-lg border-2 border-gray-300 text-gray-600 hover:border-green-300">
+                        Business Portal
+                    </button>
+                </div>
+            </div>
+            
+            <form id="loginForm" onsubmit="return window.app.handleLogin(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <input type="email" id="loginEmail" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
+                               placeholder="email@ourlocalloop.co.za">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="loginPassword" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
+                               placeholder="••••••••">
+                    </div>
+                    
+                    <button type="submit" id="loginButton"
+                            class="w-full btn-primary text-white font-semibold py-3 rounded-lg mt-2 flex items-center justify-center">
+                        <span id="loginBtnText"><i class="fas fa-sign-in-alt mr-2"></i> Sign In</span>
+                        <div id="loginSpinner" class="loading-spinner hidden"></div>
+                    </button>
+                </div>
+            </form>
+            
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <div class="text-center">
+                    <button onclick="window.app.showLanding()" class="text-sm text-green-600 hover:text-green-500 font-medium">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Main Site
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="hidden">
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-recycle text-white"></i>
+                            </div>
+                            <div>
+                                <span class="text-xl font-bold logo-gradient">Our Local Loop</span>
+                                <span class="ml-3 text-sm text-gray-500 hidden md:inline">Nottingham Road Network</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-6">
+                        <div class="hidden md:flex items-center space-x-4">
+                            <div class="flex items-center px-3 py-1 bg-green-50 text-green-700 rounded-full">
+                                <i class="fas fa-circle text-xs mr-2"></i>
+                                <span class="text-sm font-medium">Live</span>
+                            </div>
+                            <div class="text-right">
+                                <div id="currentAdmin" class="font-medium text-gray-900"></div>
+                                <div class="text-xs text-gray-500">Administrator</div>
+                            </div>
+                        </div>
+                        <button onclick="window.app.logout()" 
+                                class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="bg-gradient-to-r from-green-500 via-green-600 to-blue-500 rounded-2xl shadow-xl p-8 text-white mb-8">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-bold mb-2" id="adminWelcome">Welcome to Our Local Loop</h1>
+                        <p class="text-green-100 opacity-90">Nottingham Road Local Rewards Network Dashboard</p>
+                    </div>
+                    <div class="hidden md:block">
+                        <i class="fas fa-chart-network text-6xl opacity-20"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Stats from Supabase -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="dashboardStats">
+                <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
+                    <div class="flex items-center justify-center h-20">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Live Business Network -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-900">Nottingham Road Network</h3>
+                            <span class="text-sm text-gray-500" id="lastUpdated"></span>
+                        </div>
+                        <div id="businessCategories" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="text-center py-8 text-gray-500">Loading businesses...</div>
+                        </div>
+                    </div>
+
+                    <!-- Live Activity Feed -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-900">Recent Network Activity</h3>
+                            <button onclick="window.app.loadRecentActivity()" class="text-sm font-medium text-green-600 hover:text-green-500">
+                                <i class="fas fa-sync-alt mr-1"></i> Refresh
+                            </button>
+                        </div>
+                        <div id="activityFeed" class="space-y-4">
+                            <div class="text-center py-4 text-gray-500">Loading activity...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-8">
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
+                        <div class="space-y-4">
+                            <button onclick="window.app.showActionModal('addBusiness')"
+                                    class="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition group">
+                                <div class="flex items-center">
+                                    <div class="p-2 rounded-lg bg-blue-100 group-hover:bg-blue-200">
+                                        <i class="fas fa-store text-blue-600"></i>
+                                    </div>
+                                    <div class="ml-4 text-left">
+                                        <div class="font-medium text-gray-900">Add Business</div>
+                                        <div class="text-sm text-gray-500">Onboard new partner</div>
+                                    </div>
+                                </div>
+                                <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-600"></i>
+                            </button>
+                            
+                            <button onclick="window.app.showActionModal('createCampaign')"
+                                    class="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition group">
+                                <div class="flex items-center">
+                                    <div class="p-2 rounded-lg bg-green-100 group-hover:bg-green-200">
+                                        <i class="fas fa-bullhorn text-green-600"></i>
+                                    </div>
+                                    <div class="ml-4 text-left">
+                                        <div class="font-medium text-gray-900">Create Campaign</div>
+                                        <div class="text-sm text-gray-500">Launch promotion</div>
+                                    </div>
+                                </div>
+                                <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-600"></i>
+                            </button>
+                            
+                            <button onclick="window.app.showActionModal('generateReport')"
+                                    class="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition group">
+                                <div class="flex items-center">
+                                    <div class="p-2 rounded-lg bg-purple-100 group-hover:bg-purple-200">
+                                        <i class="fas fa-chart-pie text-purple-600"></i>
+                                    </div>
+                                    <div class="ml-4 text-left">
+                                        <div class="font-medium text-gray-900">Generate Report</div>
+                                        <div class="text-sm text-gray-500">Monthly insights</div>
+                                    </div>
+                                </div>
+                                <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-600"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live System Status -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6">System Status</h3>
+                        <div class="space-y-4" id="systemStatus">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-database text-blue-500 mr-3"></i>
+                                    <span class="text-gray-700">Supabase Connection</span>
+                                </div>
+                                <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                                    Connected
+                                </span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-sync-alt text-green-500 mr-3"></i>
+                                    <span class="text-gray-700">Real-time Updates</span>
+                                </div>
+                                <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                                    Active
+                                </span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-clock text-yellow-500 mr-3"></i>
+                                    <span class="text-gray-700">Last Sync</span>
+                                </div>
+                                <span class="text-sm text-gray-600" id="lastSyncTime">Just now</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Dashboard -->
+    <div id="businessDashboard" class="hidden">
+        <div class="bg-gradient-to-br from-blue-50 to-white min-h-screen p-8">
+            <div class="max-w-6xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <div class="flex justify-between items-center mb-8">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-store text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-900" id="businessName">My Business</h2>
+                                <p class="text-gray-600">Business Portal Dashboard</p>
+                            </div>
+                        </div>
+                        <button onclick="window.app.logout()" class="px-4 py-2 text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" id="businessStats">
+                        <div class="bg-green-50 p-6 rounded-xl border border-green-200">
+                            <div class="loading-spinner mx-auto"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Generate Customer Voucher</h3>
+                        <div class="flex gap-4">
+                            <input type="number" id="voucherAmount" placeholder="Amount (R)" 
+                                   class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            <button onclick="window.app.generateVoucher()" 
+                                    class="btn-primary text-white px-6 py-3 rounded-lg font-medium">
+                                <i class="fas fa-qrcode mr-2"></i> Generate QR
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-gray-200 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">My Vouchers</h3>
+                        <div id="myVouchers" class="space-y-2">
+                            <div class="text-center py-4 text-gray-500">Loading vouchers...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Portal -->
+    <div id="customerPortal" class="hidden">
+        <div class="min-h-screen bg-gradient-to-b from-green-50 to-white">
+            <div class="max-w-4xl mx-auto p-8">
+                <div class="text-center mb-12">
+                    <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-recycle text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-4xl font-bold text-gray-900 mb-4">Customer Portal</h1>
+                    <p class="text-gray-600">Discover and redeem rewards at Nottingham Road businesses</p>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Available Businesses</h2>
+                    <div id="customerBusinessList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="text-center py-8 text-gray-500">Loading businesses...</div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="window.app.showLanding()" class="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg text-lg font-semibold">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Home
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Modals -->
+    <div id="actionModal" class="hidden fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 slide-up">
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Main Application Script -->
+    <script>
+        // Application Module - wrapped to avoid global namespace pollution
+        window.app = (function() {
+            'use strict';
+            
+            // Private variables
+            let _supabaseClient = null;
+            let _currentUser = null;
+            let _loginType = 'admin';
+            let _realtimeSubscription = null;
+            
+            // Supabase Configuration
+            const SUPABASE_URL = 'https://hwbbtuijwvfhuakcsjqj.supabase.co';
+            const SUPABASE_KEY = 'sb_publishable_M1IrCztp4duxP7k6CylW2Q_C-KcAO95';
+            
+            // Initialize Supabase Client
+            function _initSupabase() {
+                try {
+                    if (window.supabase && window.supabase.createClient) {
+                        _supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                        console.log('Supabase initialized successfully');
+                        return true;
+                    } else {
+                        console.error('Supabase library not loaded');
+                        return false;
+                    }
+                } catch (e) {
+                    console.error('Failed to initialize Supabase:', e);
+                    return false;
+                }
+            }
+            
+            // Wait for Supabase to be ready
+            function _waitForSupabase(callback, maxAttempts = 50) {
+                let attempts = 0;
+                const checkInterval = setInterval(() => {
+                    attempts++;
+                    if (_initSupabase()) {
+                        clearInterval(checkInterval);
+                        if (callback) callback();
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(checkInterval);
+                        console.error('Failed to load Supabase after ' + maxAttempts + ' attempts');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Connection Error',
+                            text: 'Failed to connect to database. Please refresh the page.'
+                        });
+                    }
+                }, 100);
+            }
+            
+            // Getters
+            function _getSupabase() {
+                if (!_supabaseClient) {
+                    _initSupabase();
+                }
+                return _supabaseClient;
+            }
+            
+            // Public API
+            return {
+                // Initialize the application
+                init: function() {
+                    _waitForSupabase(() => {
+                        this.loadPublicStats();
+                        this.checkAuthState();
+                    });
+                },
+                
+                // Navigation Functions
+                showLogin: function() {
+                    document.getElementById('loginModal').classList.remove('hidden');
+                    this.setLoginType('admin');
+                },
+                
+                closeLogin: function() {
+                    document.getElementById('loginModal').classList.add('hidden');
+                },
+                
+                setLoginType: function(type) {
+                    _loginType = type;
+                    
+                    document.getElementById('adminTab').className = type === 'admin' 
+                        ? 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-green-500 bg-green-50 text-green-700'
+                        : 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-gray-300 text-gray-600 hover:border-green-300';
+                    
+                    document.getElementById('businessTab').className = type === 'business' 
+                        ? 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-green-500 bg-green-50 text-green-700'
+                        : 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-gray-300 text-gray-600 hover:border-green-300';
+                    
+                    document.getElementById('loginBtnText').innerHTML = type === 'admin' 
+                        ? '<i class="fas fa-sign-in-alt mr-2"></i> Admin Sign In'
+                        : '<i class="fas fa-store mr-2"></i> Business Sign In';
+                },
+                
+                // Authentication Functions
+                handleLogin: async function(event) {
+                    event.preventDefault();
+                    
+                    const email = document.getElementById('loginEmail').value;
+                    const password = document.getElementById('loginPassword').value;
+                    
+                    document.getElementById('loginBtnText').classList.add('hidden');
+                    document.getElementById('loginSpinner').classList.remove('hidden');
+                    
+                    try {
+                        const supabase = _getSupabase();
+                        
+                        if (_loginType === 'admin') {
+                            const { data, error } = await supabase.auth.signInWithPassword({
+                                email: email,
+                                password: password
+                            });
+                            
+                            if (error) throw error;
+                            
+                            const { data: profile, error: profileError } = await supabase
+                                .from('profiles')
+                                .select('role, full_name')
+                                .eq('id', data.user.id)
+                                .single();
+                            
+                            if (profileError || profile.role !== 'admin') {
+                                await supabase.auth.signOut();
+                                throw new Error('Unauthorized access');
+                            }
+                            
+                            _currentUser = { ...data.user, ...profile, type: 'admin' };
+                            
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Welcome back!',
+                                text: `Logged in as ${profile.full_name}`,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            
+                            setTimeout(() => {
+                                this.closeLogin();
+                                this.showAdminDashboard();
+                            }, 1600);
+                            
+                        } else if (_loginType === 'business') {
+                            const { data, error } = await supabase.auth.signInWithPassword({
+                                email: email,
+                                password: password
+                            });
+                            
+                            if (error) throw error;
+                            
+                            const { data: business, error: bizError } = await supabase
+                                .from('businesses')
+                                .select('*, owner_id')
+                                .eq('owner_id', data.user.id)
+                                .single();
+                            
+                            if (bizError) throw new Error('No business associated with this account');
+                            
+                            _currentUser = { ...data.user, business, type: 'business' };
+                            
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Welcome!',
+                                text: `Logged in to ${business.name}`,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            
+                            setTimeout(() => {
+                                this.closeLogin();
+                                this.showBusinessDashboard();
+                            }, 1600);
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Login Failed',
+                            text: error.message || 'Invalid credentials',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    } finally {
+                        document.getElementById('loginBtnText').classList.remove('hidden');
+                        document.getElementById('loginSpinner').classList.add('hidden');
+                    }
+                    
+                    return false;
+                },
+                
+                logout: async function() {
+                    const result = await Swal.fire({
+                        title: 'Logout?',
+                        text: 'Are you sure you want to logout?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#10b981',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Yes, logout'
+                    });
+                    
+                    if (result.isConfirmed) {
+                        const supabase = _getSupabase();
+                        await supabase.auth.signOut();
+                        
+                        if (_realtimeSubscription) {
+                            await supabase.removeChannel(_realtimeSubscription);
+                            _realtimeSubscription = null;
+                        }
+                        
+                        _currentUser = null;
+                        this.showLanding();
+                    }
+                },
+                
+                // Dashboard Functions
+                showLanding: function() {
+                    document.getElementById('adminDashboard').classList.add('hidden');
+                    document.getElementById('businessDashboard').classList.add('hidden');
+                    document.getElementById('customerPortal').classList.add('hidden');
+                    document.getElementById('loginModal').classList.add('hidden');
+                    document.getElementById('landingPage').classList.remove('hidden');
+                },
+                
+                showAdminDashboard: async function() {
+                    document.getElementById('landingPage').classList.add('hidden');
+                    document.getElementById('adminDashboard').classList.remove('hidden');
+                    document.getElementById('currentAdmin').textContent = _currentUser.full_name || _currentUser.email;
+                    document.getElementById('adminWelcome').textContent = `Welcome, ${_currentUser.full_name || 'Admin'}!`;
+                    
+                    await this.loadDashboardStats();
+                    await this.loadBusinessCategories();
+                    await this.loadRecentActivity();
+                    this.subscribeToRealtimeUpdates();
+                },
+                
+                showBusinessDashboard: async function() {
+                    document.getElementById('landingPage').classList.add('hidden');
+                    document.getElementById('businessDashboard').classList.remove('hidden');
+                    document.getElementById('businessName').textContent = _currentUser.business.name;
+                    
+                    await this.loadBusinessStats();
+                    await this.loadMyVouchers();
+                },
+                
+                showCustomerPortal: async function() {
+                    document.getElementById('landingPage').classList.add('hidden');
+                    document.getElementById('customerPortal').classList.remove('hidden');
+                    await this.loadPublicBusinesses();
+                },
+                
+                // Data Loading Functions
+                loadDashboardStats: async function() {
+                    try {
+                        const supabase = _getSupabase();
+                        
+                        const { count: businessCount } = await supabase
+                            .from('businesses')
+                            .select('*', { count: 'exact', head: true });
+                        
+                        const { count: userCount } = await supabase
+                            .from('profiles')
+                            .select('*', { count: 'exact', head: true });
+                        
+                        const startOfMonth = new Date();
+                        startOfMonth.setDate(1);
+                        const { count: redemptionCount } = await supabase
+                            .from('transactions')
+                            .select('*', { count: 'exact', head: true })
+                            .gte('created_at', startOfMonth.toISOString())
+                            .eq('type', 'redemption');
+                        
+                        const { data: transactions } = await supabase
+                            .from('transactions')
+                            .select('amount')
+                            .gte('created_at', startOfMonth.toISOString());
+                        
+                        const revenue = transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+                        
+                        const statsHtml = `
+                            <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600">
+                                        <i class="fas fa-store text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-3xl font-bold text-gray-900 mb-1">${businessCount || 0}</div>
+                                    <div class="text-sm text-gray-500">Connected Businesses</div>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600">
+                                        <i class="fas fa-users text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-3xl font-bold text-gray-900 mb-1">${userCount || 0}</div>
+                                    <div class="text-sm text-gray-500">Active Users</div>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600">
+                                        <i class="fas fa-qrcode text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-3xl font-bold text-gray-900 mb-1">${redemptionCount || 0}</div>
+                                    <div class="text-sm text-gray-500">Monthly Redemptions</div>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600">
+                                        <i class="fas fa-money-bill-wave text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-3xl font-bold text-gray-900 mb-1">R${revenue.toLocaleString()}</div>
+                                    <div class="text-sm text-gray-500">Monthly Revenue</div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        document.getElementById('dashboardStats').innerHTML = statsHtml;
+                        document.getElementById('lastSyncTime').textContent = new Date().toLocaleTimeString();
+                        
+                    } catch (error) {
+                        console.error('Error loading stats:', error);
+                    }
+                },
+                
+                loadBusinessCategories: async function() {
+                    try {
+                        const supabase = _getSupabase();
+                        const { data: businesses, error } = await supabase
+                            .from('businesses')
+                            .select('category');
+                        
+                        if (error) throw error;
+                        
+                        const categories = {};
+                        businesses.forEach(b => {
+                            categories[b.category] = (categories[b.category] || 0) + 1;
+                        });
+                        
+                        const categoryColors = {
+                            'cafe': 'green',
+                            'restaurant': 'blue',
+                            'accommodation': 'purple',
+                            'retail': 'yellow',
+                            'experience': 'pink'
+                        };
+                        
+                        const categoryIcons = {
+                            'cafe': 'coffee',
+                            'restaurant': 'utensils',
+                            'accommodation': 'bed',
+                            'retail': 'shopping-bag',
+                            'experience': 'star'
+                        };
+                        
+                        let html = '';
+                        for (const [cat, count] of Object.entries(categories)) {
+                            const color = categoryColors[cat] || 'gray';
+                            const icon = categoryIcons[cat] || 'store';
+                            
+                            html += `
+                                <div class="p-4 bg-gradient-to-r from-${color}-50 to-${color}-100 rounded-xl border border-${color}-200">
+                                    <div class="flex items-center">
+                                        <div class="p-2 bg-${color}-500 rounded-lg">
+                                            <i class="fas fa-${icon} text-white"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="font-bold text-gray-900 capitalize">${cat}</div>
+                                            <div class="text-sm text-gray-600">${count} businesses</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        document.getElementById('businessCategories').innerHTML = html || '<div class="text-gray-500">No businesses yet</div>';
+                        document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+                        
+                    } catch (error) {
+                        console.error('Error loading categories:', error);
+                    }
+                },
+                
+                loadRecentActivity: async function(limit = 10) {
+                    try {
+                        const supabase = _getSupabase();
+                        const { data: activities, error } = await supabase
+                            .from('transactions')
+                            .select('*, businesses(name), profiles(full_name)')
+                            .order('created_at', { ascending: false })
+                            .limit(limit);
+                        
+                        if (error) throw error;
+                        
+                        let html = '';
+                        activities.forEach(activity => {
+                            const isRedemption = activity.type === 'redemption';
+                            const icon = isRedemption ? 'check' : 'plus';
+                            const color = isRedemption ? 'green' : 'blue';
+                            const businessName = activity.businesses?.name || 'Unknown';
+                            const timeAgo = this.getTimeAgo(new Date(activity.created_at));
+                            
+                            html += `
+                                <div class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition border-l-4 border-${color}-500">
+                                    <div class="p-2 rounded-full bg-${color}-100">
+                                        <i class="fas fa-${icon} text-${color}-600"></i>
+                                    </div>
+                                    <div class="ml-4 flex-1">
+                                        <div class="font-medium text-gray-900">${businessName}</div>
+                                        <div class="text-sm text-gray-500">
+                                            ${isRedemption ? 'Redeemed' : 'Issued'} voucher worth R${activity.amount}
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-xs text-gray-400">${timeAgo}</div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        document.getElementById('activityFeed').innerHTML = html || '<div class="text-gray-500">No recent activity</div>';
+                        
+                    } catch (error) {
+                        console.error('Error loading activity:', error);
+                    }
+                },
+                
+                loadBusinessStats: async function() {
+                    if (!_currentUser?.business?.id) return;
+                    
+                    try {
+                        const supabase = _getSupabase();
+                        const businessId = _currentUser.business.id;
+                        const today = new Date().toISOString().split('T')[0];
+                        
+                        const { count: todayRedemptions } = await supabase
+                            .from('transactions')
+                            .select('*', { count: 'exact', head: true })
+                            .eq('business_id', businessId)
+                            .eq('type', 'redemption')
+                            .gte('created_at', today);
+                        
+                        const { data: todayTrans } = await supabase
+                            .from('transactions')
+                            .select('amount')
+                            .eq('business_id', businessId)
+                            .gte('created_at', today);
+                        
+                        const revenue = todayTrans?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+                        
+                        const { count: activeVouchers } = await supabase
+                            .from('vouchers')
+                            .select('*', { count: 'exact', head: true })
+                            .eq('business_id', businessId)
+                            .eq('status', 'active');
+                        
+                        const html = `
+                            <div class="bg-green-50 p-6 rounded-xl border border-green-200">
+                                <div class="text-3xl font-bold text-green-700 mb-2">${todayRedemptions || 0}</div>
+                                <div class="text-gray-600">Today's Redemptions</div>
+                            </div>
+                            <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                                <div class="text-3xl font-bold text-blue-700 mb-2">R${revenue.toLocaleString()}</div>
+                                <div class="text-gray-600">Today's Revenue</div>
+                            </div>
+                            <div class="bg-purple-50 p-6 rounded-xl border border-purple-200">
+                                <div class="text-3xl font-bold text-purple-700 mb-2">${activeVouchers || 0}</div>
+                                <div class="text-gray-600">Active Vouchers</div>
+                            </div>
+                        `;
+                        
+                        document.getElementById('businessStats').innerHTML = html;
+                        
+                    } catch (error) {
+                        console.error('Error loading business stats:', error);
+                    }
+                },
+                
+                loadMyVouchers: async function() {
+                    if (!_currentUser?.business?.id) return;
+                    
+                    try {
+                        const supabase = _getSupabase();
+                        const { data: vouchers, error } = await supabase
+                            .from('vouchers')
+                            .select('*')
+                            .eq('business_id', _currentUser.business.id)
+                            .order('created_at', { ascending: false })
+                            .limit(10);
+                        
+                        if (error) throw error;
+                        
+                        let html = '';
+                        vouchers.forEach(voucher => {
+                            const statusColor = voucher.status === 'active' ? 'green' : 
+                                              voucher.status === 'redeemed' ? 'blue' : 'gray';
+                            
+                            html += `
+                                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <div class="font-semibold text-gray-900">R${voucher.amount} Voucher</div>
+                                        <div class="text-sm text-gray-500">Code: ${voucher.code}</div>
+                                    </div>
+                                    <span class="px-3 py-1 bg-${statusColor}-100 text-${statusColor}-800 rounded-full text-sm capitalize">
+                                        ${voucher.status}
+                                    </span>
+                                </div>
+                            `;
+                        });
+                        
+                        document.getElementById('myVouchers').innerHTML = html || '<div class="text-gray-500">No vouchers yet</div>';
+                        
+                    } catch (error) {
+                        console.error('Error loading vouchers:', error);
+                    }
+                },
+                
+                loadPublicBusinesses: async function() {
+                    try {
+                        const supabase = _getSupabase();
+                        const { data: businesses, error } = await supabase
+                            .from('businesses')
+                            .select('*, profiles(full_name)')
+                            .eq('status', 'active')
+                            .order('name');
+                        
+                        if (error) throw error;
+                        
+                        let html = '';
+                        businesses.forEach(biz => {
+                            html += `
+                                <div class="p-4 border border-gray-200 rounded-lg hover:shadow-md transition">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <h3 class="font-semibold text-gray-900">${biz.name}</h3>
+                                            <p class="text-sm text-gray-500 capitalize">${biz.category} • ${biz.location || 'Nottingham Road'}</p>
+                                        </div>
+                                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Open</span>
+                                    </div>
+                                    <p class="mt-2 text-sm text-gray-600">${biz.description || 'Join the network to earn rewards!'}</p>
+                                </div>
+                            `;
+                        });
+                        
+                        document.getElementById('customerBusinessList').innerHTML = html || '<div class="text-gray-500">No businesses found</div>';
+                        
+                    } catch (error) {
+                        console.error('Error loading businesses:', error);
+                    }
+                },
+                
+                loadPublicStats: async function() {
+                    try {
+                        const supabase = _getSupabase();
+                        const { count: businessCount } = await supabase
+                            .from('businesses')
+                            .select('*', { count: 'exact', head: true });
+                        
+                        const { count: userCount } = await supabase
+                            .from('profiles')
+                            .select('*', { count: 'exact', head: true });
+                        
+                        const { data: transactions } = await supabase
+                            .from('transactions')
+                            .select('amount');
+                        
+                        const totalCirculation = transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+                        
+                        const html = `
+                            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                                <div class="text-3xl font-bold text-green-600 mb-2">${businessCount || 0}</div>
+                                <div class="text-gray-600">Local Businesses</div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                                <div class="text-3xl font-bold text-blue-600 mb-2">${userCount || 0}</div>
+                                <div class="text-gray-600">Active Users</div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                                <div class="text-3xl font-bold text-purple-600 mb-2">R${(totalCirculation / 1000).toFixed(1)}K+</div>
+                                <div class="text-gray-600">Total Circulation</div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                                <div class="text-3xl font-bold text-yellow-600 mb-2">98%</div>
+                                <div class="text-gray-600">Satisfaction Rate</div>
+                            </div>
+                        `;
+                        
+                        document.getElementById('publicStats').innerHTML = html;
+                        
+                    } catch (error) {
+                        console.error('Error loading public stats:', error);
+                    }
+                },
+                
+                // Real-time Subscriptions
+                subscribeToRealtimeUpdates: function() {
+                    const supabase = _getSupabase();
+                    _realtimeSubscription = supabase
+                        .channel('public:transactions')
+                        .on('postgres_changes', 
+                            { event: 'INSERT', schema: 'public', table: 'transactions' },
+                            (payload) => {
+                                console.log('New transaction:', payload);
+                                this.loadRecentActivity();
+                                this.loadDashboardStats();
+                            }
+                        )
+                        .subscribe();
+                },
+                
+                // Action Modal Functions
+                showActionModal: function(action) {
+                    let modalContent = '';
+                    let title = '';
+                    
+                    switch(action) {
+                        case 'addBusiness':
+                            title = 'Add New Business';
+                            modalContent = `
+                                <form onsubmit="return window.app.submitNewBusiness(event)" class="space-y-4">
+                                    <input type="text" name="name" placeholder="Business Name" required
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                    <input type="email" name="email" placeholder="Owner Email" required
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                    <select name="category" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                        <option value="">Select Category</option>
+                                        <option value="cafe">Café / Coffee Shop</option>
+                                        <option value="restaurant">Restaurant</option>
+                                        <option value="accommodation">Accommodation</option>
+                                        <option value="retail">Retail</option>
+                                        <option value="experience">Experience</option>
+                                    </select>
+                                    <textarea name="description" placeholder="Description" rows="3" 
+                                              class="w-full px-4 py-3 border border-gray-300 rounded-lg"></textarea>
+                                    <button type="submit" class="w-full btn-primary text-white font-semibold py-3 rounded-lg">
+                                        <i class="fas fa-plus mr-2"></i> Add Business
+                                    </button>
+                                </form>
+                            `;
+                            break;
+                            
+                        case 'createCampaign':
+                            title = 'Create Campaign';
+                            modalContent = `
+                                <form onsubmit="return window.app.submitCampaign(event)" class="space-y-4">
+                                    <input type="text" name="name" placeholder="Campaign Name" required
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                    <textarea name="description" placeholder="Description" rows="3" 
+                                              class="w-full px-4 py-3 border border-gray-300 rounded-lg"></textarea>
+                                    <input type="number" name="budget" placeholder="Budget (R)" required
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                    <input type="date" name="end_date" required
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                    <button type="submit" class="w-full btn-primary text-white font-semibold py-3 rounded-lg">
+                                        <i class="fas fa-bullhorn mr-2"></i> Launch Campaign
+                                    </button>
+                                </form>
+                            `;
+                            break;
+                            
+                        default:
+                            title = 'Action';
+                            modalContent = `<p class="text-gray-600">Action functionality coming soon...</p>`;
+                    }
+                    
+                    document.getElementById('modalContent').innerHTML = `
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-gray-900">${title}</h3>
+                            <button onclick="window.app.closeActionModal()" class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times text-2xl"></i>
+                            </button>
+                        </div>
+                        ${modalContent}
+                    `;
+                    
+                    document.getElementById('actionModal').classList.remove('hidden');
+                },
+                
+                submitNewBusiness: async function(event) {
+                    event.preventDefault();
+                    const formData = new FormData(event.target);
+                    
+                    try {
+                        const supabase = _getSupabase();
+                        const tempPassword = Math.random().toString(36).slice(-8);
+                        
+                        const { data: authData, error: authError } = await supabase.auth.signUp({
+                            email: formData.get('email'),
+                            password: tempPassword
+                        });
+                        
+                        if (authError) throw authError;
+                        
+                        await supabase.from('profiles').insert({
+                            id: authData.user.id,
+                            role: 'business_owner',
+                            full_name: formData.get('name') + ' Owner'
+                        });
+                        
+                        const { error: bizError } = await supabase.from('businesses').insert({
+                            name: formData.get('name'),
+                            category: formData.get('category'),
+                            description: formData.get('description'),
+                            owner_id: authData.user.id,
+                            status: 'active'
+                        });
+                        
+                        if (bizError) throw bizError;
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Business Added!',
+                            text: `Temporary password: ${tempPassword}`,
+                            confirmButtonColor: '#10b981'
+                        });
+                        
+                        this.closeActionModal();
+                        this.loadBusinessCategories();
+                        
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.message
+                        });
+                    }
+                    
+                    return false;
+                },
+                
+                submitCampaign: async function(event) {
+                    event.preventDefault();
+                    const formData = new FormData(event.target);
+                    
+                    try {
+                        const supabase = _getSupabase();
+                        const { error } = await supabase.from('campaigns').insert({
+                            name: formData.get('name'),
+                            description: formData.get('description'),
+                            budget: parseFloat(formData.get('budget')),
+                            end_date: formData.get('end_date'),
+                            created_by: _currentUser.id,
+                            status: 'active'
+                        });
+                        
+                        if (error) throw error;
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Campaign Created!',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        
+                        this.closeActionModal();
+                        
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.message
+                        });
+                    }
+                    
+                    return false;
+                },
+                
+                generateVoucher: async function() {
+                    const amount = document.getElementById('voucherAmount').value;
+                    if (!amount || amount <= 0) {
+                        Swal.fire({ icon: 'warning', title: 'Please enter a valid amount' });
+                        return;
+                    }
+                    
+                    try {
+                        const supabase = _getSupabase();
+                        const code = 'OLL' + Math.random().toString(36).substring(2, 8).toUpperCase();
+                        
+                        const { error } = await supabase.from('vouchers').insert({
+                            business_id: _currentUser.business.id,
+                            amount: parseFloat(amount),
+                            code: code,
+                            status: 'active',
+                            created_by: _currentUser.id
+                        });
+                        
+                        if (error) throw error;
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Voucher Generated!',
+                            html: `<div class="text-2xl font-bold text-green-600 my-4">${code}</div><p>Show this code to customer</p>`,
+                            confirmButtonColor: '#10b981'
+                        });
+                        
+                        this.loadMyVouchers();
+                        document.getElementById('voucherAmount').value = '';
+                        
+                    } catch (error) {
+                        Swal.fire({ icon: 'error', title: 'Error', text: error.message });
+                    }
+                },
+                
+                closeActionModal: function() {
+                    document.getElementById('actionModal').classList.add('hidden');
+                },
+                
+                // Utility Functions
+                getTimeAgo: function(date) {
+                    const seconds = Math.floor((new Date() - date) / 1000);
+                    if (seconds < 60) return 'Just now';
+                    const minutes = Math.floor(seconds / 60);
+                    if (minutes < 60) return `${minutes}m ago`;
+                    const hours = Math.floor(minutes / 60);
+                    if (hours < 24) return `${hours}h ago`;
+                    const days = Math.floor(hours / 24);
+                    return `${days}d ago`;
+                },
+                
+                checkAuthState: async function() {
+                    try {
+                        const supabase = _getSupabase();
+                        const { data: { session } } = await supabase.auth.getSession();
+                        if (session) {
+                            const { data: profile } = await supabase
+                                .from('profiles')
+                                .select('*')
+                                .eq('id', session.user.id)
+                                .single();
+                            
+                            if (profile) {
+                                _currentUser = { ...session.user, ...profile };
+                                if (profile.role === 'admin') {
+                                    this.showAdminDashboard();
+                                } else {
+                                    const { data: business } = await supabase
+                                        .from('businesses')
+                                        .select('*')
+                                        .eq('owner_id', session.user.id)
+                                        .single();
+                                    
+                                    if (business) {
+                                        _currentUser.business = business;
+                                        this.showBusinessDashboard();
+                                    }
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Auth state check failed:', error);
+                    }
+                }
+            };
+        })();
+        
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => window.app.init());
+        } else {
+            window.app.init();
+        }
+        
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.id === 'loginModal') {
+                window.app.closeLogin();
+            } else if (event.target.id === 'actionModal') {
+                window.app.closeActionModal();
+            }
+        }
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
