@@ -3,120 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LocalLoop Admin Portal</title>
+    <title>Our Local Loop | Nottingham Road Network</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         * { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Poppins', sans-serif; }
         
-        .sidebar-item:hover { background: rgba(22, 163, 74, 0.1); }
-        .stat-card { transition: transform 0.2s; }
-        .stat-card:hover { transform: translateY(-2px); }
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #3b82f6;
+            --accent: #8b5cf6;
+        }
+        
+        .logo-gradient {
+            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .sidebar-item:hover { background: rgba(16, 185, 129, 0.1); }
+        .stat-card { 
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary);
+        }
+        .stat-card:hover { 
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.15);
+        }
         .btn-primary { 
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             transition: all 0.3s;
         }
         .btn-primary:hover { 
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary) 0%, #2563eb 100%);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Animation classes */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        .slide-up { animation: slideUp 0.3s ease-out; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
-<body class="bg-gray-50">
-    <!-- Login Screen -->
-    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
-        <div class="max-w-md w-full">
-            <!-- Header -->
-            <div class="text-center mb-10">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg mb-4">
-                    <i class="fas fa-store text-white text-2xl"></i>
-                </div>
-                <h1 class="text-3xl font-bold text-gray-900">LocalLoop Admin</h1>
-                <p class="text-gray-600 mt-2">Nottingham Road Network Portal</p>
-            </div>
-
-            <!-- Login Card -->
-            <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-                <h2 class="text-xl font-semibold text-gray-900 mb-6">Sign in to your account</h2>
-                
-                <form id="loginForm">
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                            <input type="email" id="email" required 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
-                                   placeholder="admin@localloop.co.za">
+<body class="bg-gradient-to-br from-gray-50 to-green-50 min-h-screen">
+    <!-- Landing Page -->
+    <div id="landingPage" class="fade-in">
+        <!-- Navigation -->
+        <nav class="bg-white/80 backdrop-blur-sm shadow-sm fixed w-full z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-recycle text-white"></i>
+                            </div>
+                            <span class="text-xl font-bold">
+                                <span class="logo-gradient">Our Local Loop</span>
+                            </span>
                         </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                            <input type="password" id="password" required 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
-                                   placeholder="••••••••">
-                        </div>
-                        
-                        <button type="submit" 
-                                class="w-full btn-primary text-white font-semibold py-3 rounded-lg shadow mt-6">
-                            <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="#features" class="text-gray-700 hover:text-green-600 font-medium px-3 py-2">Features</a>
+                        <a href="#businesses" class="text-gray-700 hover:text-green-600 font-medium px-3 py-2">For Businesses</a>
+                        <a href="#customers" class="text-gray-700 hover:text-green-600 font-medium px-3 py-2">For Customers</a>
+                        <button onclick="showLogin()" class="btn-primary text-white px-6 py-2 rounded-lg font-medium">
+                            Admin Login
                         </button>
                     </div>
-                </form>
-                
-                <!-- Demo Accounts -->
-                <div class="mt-8 pt-6 border-t border-gray-200">
-                    <h3 class="text-sm font-medium text-gray-700 mb-3">Demo Admin Accounts</h3>
-                    <div class="space-y-3">
-                        <div class="text-sm bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition"
-                             onclick="fillCredentials('johan@localloop.co.za', 'Johan@123')">
-                            <div class="font-medium text-gray-900">Johan</div>
-                            <div class="text-gray-600">johan@localloop.co.za</div>
-                            <div class="text-gray-500 text-xs">Password: Johan@123</div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center">
+                    <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+                        Connecting <span class="logo-gradient">Nottingham Road</span>
+                    </h1>
+                    <p class="text-xl text-gray-600 mb-10 max-w-3xl mx-auto">
+                        A community-driven rewards network that keeps local spending circulating between independent businesses. 
+                        Spend at one, get rewarded at another.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+                        <button onclick="showLogin()" class="btn-primary text-white px-8 py-4 rounded-xl text-lg font-semibold">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Business Portal Login
+                        </button>
+                        <button onclick="showCustomerPortal()" class="bg-white text-gray-800 border-2 border-green-500 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-green-50">
+                            <i class="fas fa-user mr-2"></i>Customer Portal
+                        </button>
+                    </div>
+                    
+                    <!-- Stats -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                        <div class="bg-white p-6 rounded-2xl shadow-lg">
+                            <div class="text-3xl font-bold text-green-600 mb-2">15+</div>
+                            <div class="text-gray-600">Local Businesses</div>
                         </div>
-                        <div class="text-sm bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition"
-                             onclick="fillCredentials('dean@localloop.co.za', 'Dean@123')">
-                            <div class="font-medium text-gray-900">Dean</div>
-                            <div class="text-gray-600">dean@localloop.co.za</div>
-                            <div class="text-gray-500 text-xs">Password: Dean@123</div>
+                        <div class="bg-white p-6 rounded-2xl shadow-lg">
+                            <div class="text-3xl font-bold text-blue-600 mb-2">2,850</div>
+                            <div class="text-gray-600">Active Users</div>
                         </div>
-                        <div class="text-sm bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition"
-                             onclick="fillCredentials('tahir@localloop.co.za', 'Tahir@123')">
-                            <div class="font-medium text-gray-900">Tahir</div>
-                            <div class="text-gray-600">tahir@localloop.co.za</div>
-                            <div class="text-gray-500 text-xs">Password: Tahir@123</div>
+                        <div class="bg-white p-6 rounded-2xl shadow-lg">
+                            <div class="text-3xl font-bold text-purple-600 mb-2">R250K+</div>
+                            <div class="text-gray-600">Monthly Circulation</div>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-lg">
+                            <div class="text-3xl font-bold text-yellow-600 mb-2">98%</div>
+                            <div class="text-gray-600">Satisfaction Rate</div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section id="features" class="py-20 bg-white/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-4xl font-bold text-center text-gray-900 mb-16">How Our Local Loop Works</h2>
+                
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center p-8 bg-white rounded-2xl shadow-lg slide-up">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-store text-green-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">1. Businesses Join</h3>
+                        <p class="text-gray-600">Local businesses in Nottingham Road join the network with exclusive category rights.</p>
+                    </div>
+                    
+                    <div class="text-center p-8 bg-white rounded-2xl shadow-lg slide-up" style="animation-delay: 0.1s">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-qrcode text-blue-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">2. Customers Earn</h3>
+                        <p class="text-gray-600">Customers spend at one business and earn QR-based rewards for partner businesses.</p>
+                    </div>
+                    
+                    <div class="text-center p-8 bg-white rounded-2xl shadow-lg slide-up" style="animation-delay: 0.2s">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-sync-alt text-purple-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">3. Money Circulates</h3>
+                        <p class="text-gray-600">Spending stays within the local economy, boosting all participating businesses.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-white py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <div class="flex items-center justify-center space-x-2 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-recycle text-white"></i>
+                        </div>
+                        <span class="text-2xl font-bold">Our Local Loop</span>
+                    </div>
+                    <p class="text-gray-400 mb-8">Nottingham Road's Community Commerce Network</p>
+                    <div class="text-gray-500 text-sm">
+                        <p>© 2024 Our Local Loop. All rights reserved.</p>
+                        <p class="mt-2">Nottingham Road, KwaZulu-Natal, South Africa</p>
+                        <p class="mt-2">Email: hello@ourlocalloop.co.za | Phone: +27 33 XXX XXXX</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 slide-up">
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-recycle text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900">Our Local Loop</h3>
+                </div>
+                <button onclick="closeLogin()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <div class="flex space-x-4 mb-4">
+                    <button onclick="setLoginType('admin')" id="adminTab" 
+                            class="flex-1 py-3 text-center font-medium rounded-lg border-2 border-green-500 bg-green-50 text-green-700">
+                        Admin Portal
+                    </button>
+                    <button onclick="setLoginType('business')" id="businessTab"
+                            class="flex-1 py-3 text-center font-medium rounded-lg border-2 border-gray-300 text-gray-600 hover:border-green-300">
+                        Business Portal
+                    </button>
                 </div>
             </div>
             
-            <div class="text-center mt-6">
-                <p class="text-xs text-gray-500">
-                    © 2024 LocalLoop. Nottingham Road Network. All rights reserved.
-                </p>
+            <form id="loginForm" onsubmit="return handleLogin(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <input type="email" id="loginEmail" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
+                               placeholder="email@ourlocalloop.co.za">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="loginPassword" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
+                               placeholder="••••••••">
+                    </div>
+                    
+                    <button type="submit" id="loginButton"
+                            class="w-full btn-primary text-white font-semibold py-3 rounded-lg mt-2">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Demo Accounts -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <h4 class="text-sm font-medium text-gray-700 mb-3">Demo Admin Accounts</h4>
+                <div class="space-y-2" id="demoAccounts">
+                    <div class="text-sm bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition"
+                         onclick="fillLogin('johan@ourlocalloop.co.za', 'Johan@123')">
+                        <div class="font-medium text-gray-900">Johan</div>
+                        <div class="text-gray-600">johan@ourlocalloop.co.za</div>
+                        <div class="text-gray-500 text-xs">Password: Johan@123</div>
+                    </div>
+                    <div class="text-sm bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition"
+                         onclick="fillLogin('dean@ourlocalloop.co.za', 'Dean@123')">
+                        <div class="font-medium text-gray-900">Dean</div>
+                        <div class="text-gray-600">dean@ourlocalloop.co.za</div>
+                        <div class="text-gray-500 text-xs">Password: Dean@123</div>
+                    </div>
+                    <div class="text-sm bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition"
+                         onclick="fillLogin('tahir@ourlocalloop.co.za', 'Tahir@123')">
+                        <div class="font-medium text-gray-900">Tahir</div>
+                        <div class="text-gray-600">tahir@ourlocalloop.co.za</div>
+                        <div class="text-gray-500 text-xs">Password: Tahir@123</div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-6">
+                    <button onclick="showCustomerPortal()" class="text-sm text-green-600 hover:text-green-500 font-medium">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Main Site
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Dashboard Screen (Hidden by default) -->
-    <div id="dashboardScreen" class="hidden">
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="hidden">
         <!-- Top Navigation -->
         <nav class="bg-white shadow-lg">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <div class="flex items-center">
-                        <div class="flex items-center">
-                            <i class="fas fa-store text-green-600 text-2xl mr-3"></i>
-                            <span class="text-xl font-bold text-gray-900">LocalLoop</span>
-                            <span class="ml-4 px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
-                                Admin Portal
-                            </span>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-recycle text-white"></i>
+                            </div>
+                            <div>
+                                <span class="text-xl font-bold logo-gradient">Our Local Loop</span>
+                                <span class="ml-3 text-sm text-gray-500 hidden md:inline">Nottingham Road Network</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-4">
-                        <div class="text-right">
-                            <div id="adminName" class="font-medium text-gray-900"></div>
-                            <div id="adminEmail" class="text-sm text-gray-500"></div>
+                    <div class="flex items-center space-x-6">
+                        <div class="hidden md:flex items-center space-x-4">
+                            <div class="flex items-center px-3 py-1 bg-green-50 text-green-700 rounded-full">
+                                <i class="fas fa-circle text-xs mr-2"></i>
+                                <span class="text-sm font-medium">Live</span>
+                            </div>
+                            <div class="text-right">
+                                <div id="currentAdmin" class="font-medium text-gray-900"></div>
+                                <div class="text-xs text-gray-500">Administrator</div>
+                            </div>
                         </div>
                         <button onclick="logout()" 
                                 class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition">
@@ -127,26 +315,26 @@
             </div>
         </nav>
 
-        <!-- Main Content -->
+        <!-- Main Dashboard -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Welcome Banner -->
-            <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl shadow-xl p-8 text-white mb-8">
+            <div class="bg-gradient-to-r from-green-500 via-green-600 to-blue-500 rounded-2xl shadow-xl p-8 text-white mb-8">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h1 class="text-3xl font-bold mb-2" id="welcomeMessage">Welcome back!</h1>
-                        <p class="text-green-100">Nottingham Road Local Rewards Network Dashboard</p>
+                        <h1 class="text-3xl font-bold mb-2" id="adminWelcome">Welcome to Our Local Loop</h1>
+                        <p class="text-green-100 opacity-90">Nottingham Road Local Rewards Network Dashboard</p>
                     </div>
                     <div class="hidden md:block">
-                        <i class="fas fa-chart-line text-6xl opacity-20"></i>
+                        <i class="fas fa-chart-network text-6xl opacity-20"></i>
                     </div>
                 </div>
             </div>
 
-            <!-- Stats Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <div class="stat-card bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 rounded-xl bg-blue-500">
+                        <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600">
                             <i class="fas fa-store text-white text-xl"></i>
                         </div>
                         <div class="flex items-center text-green-600 text-sm font-medium">
@@ -155,14 +343,29 @@
                     </div>
                     <div>
                         <div class="text-3xl font-bold text-gray-900 mb-1">15</div>
-                        <div class="text-sm text-gray-500">Total Businesses</div>
+                        <div class="text-sm text-gray-500">Connected Businesses</div>
                     </div>
                 </div>
                 
-                <div class="stat-card bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 rounded-xl bg-green-500">
-                            <i class="fas fa-chart-line text-white text-xl"></i>
+                        <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600">
+                            <i class="fas fa-users text-white text-xl"></i>
+                        </div>
+                        <div class="flex items-center text-green-600 text-sm font-medium">
+                            <i class="fas fa-arrow-up mr-1"></i>+5%
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-gray-900 mb-1">2,850</div>
+                        <div class="text-sm text-gray-500">Active Users</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600">
+                            <i class="fas fa-qrcode text-white text-xl"></i>
                         </div>
                         <div class="flex items-center text-green-600 text-sm font-medium">
                             <i class="fas fa-arrow-up mr-1"></i>+12%
@@ -174,9 +377,9 @@
                     </div>
                 </div>
                 
-                <div class="stat-card bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <div class="stat-card bg-white p-6 rounded-xl shadow-lg">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 rounded-xl bg-yellow-500">
+                        <div class="p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600">
                             <i class="fas fa-money-bill-wave text-white text-xl"></i>
                         </div>
                         <div class="flex items-center text-green-600 text-sm font-medium">
@@ -190,145 +393,221 @@
                 </div>
             </div>
 
-            <!-- Main Content Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Recent Activity -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3>
-                        <button class="text-sm font-medium text-green-600 hover:text-green-500">
-                            View all <i class="fas fa-arrow-right ml-1"></i>
-                        </button>
+            <!-- Dashboard Content -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left Column -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Network Overview -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Nottingham Road Network</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200">
+                                <div class="flex items-center">
+                                    <div class="p-2 bg-green-500 rounded-lg">
+                                        <i class="fas fa-coffee text-white"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="font-bold text-gray-900">Coffee Shops</div>
+                                        <div class="text-sm text-gray-600">3 businesses • 450 redemptions</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+                                <div class="flex items-center">
+                                    <div class="p-2 bg-blue-500 rounded-lg">
+                                        <i class="fas fa-utensils text-white"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="font-bold text-gray-900">Restaurants</div>
+                                        <div class="text-sm text-gray-600">4 businesses • 620 redemptions</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl border border-purple-200">
+                                <div class="flex items-center">
+                                    <div class="p-2 bg-purple-500 rounded-lg">
+                                        <i class="fas fa-bed text-white"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="font-bold text-gray-900">Accommodation</div>
+                                        <div class="text-sm text-gray-600">3 businesses • 280 redemptions</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl border border-yellow-200">
+                                <div class="flex items-center">
+                                    <div class="p-2 bg-yellow-500 rounded-lg">
+                                        <i class="fas fa-shopping-bag text-white"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="font-bold text-gray-900">Retail</div>
+                                        <div class="text-sm text-gray-600">5 businesses • 890 redemptions</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="space-y-4">
-                        <div class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
-                            <div class="p-2 rounded-full bg-green-100">
-                                <i class="fas fa-check text-green-600"></i>
-                            </div>
-                            <div class="ml-4 flex-1">
-                                <div class="font-medium text-gray-900">Coffee Connection</div>
-                                <div class="text-sm text-gray-500">New redemption</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-semibold text-gray-900">R50</div>
-                                <div class="text-xs text-gray-400">2 min ago</div>
-                            </div>
+
+                    <!-- Recent Activity -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-900">Recent Network Activity</h3>
+                            <button class="text-sm font-medium text-green-600 hover:text-green-500">
+                                View All <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
                         </div>
-                        
-                        <div class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
-                            <div class="p-2 rounded-full bg-blue-100">
-                                <i class="fas fa-plus text-blue-600"></i>
+                        <div class="space-y-4">
+                            <div class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
+                                <div class="p-2 rounded-full bg-green-100">
+                                    <i class="fas fa-check text-green-600"></i>
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <div class="font-medium text-gray-900">Coffee Connection</div>
+                                    <div class="text-sm text-gray-500">Redeemed R50 voucher from Midlands Lodge</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-semibold text-gray-900">R50</div>
+                                    <div class="text-xs text-gray-400">2 min ago</div>
+                                </div>
                             </div>
-                            <div class="ml-4 flex-1">
-                                <div class="font-medium text-gray-900">Midlands Lodge</div>
-                                <div class="text-sm text-gray-500">Joined network</div>
+                            
+                            <div class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
+                                <div class="p-2 rounded-full bg-blue-100">
+                                    <i class="fas fa-plus text-blue-600"></i>
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <div class="font-medium text-gray-900">Midlands Lodge</div>
+                                    <div class="text-sm text-gray-500">New business joined the network</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xs text-gray-400">15 min ago</div>
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <div class="text-xs text-gray-400">15 min ago</div>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
-                            <div class="p-2 rounded-full bg-yellow-100">
-                                <i class="fas fa-bullhorn text-yellow-600"></i>
-                            </div>
-                            <div class="ml-4 flex-1">
-                                <div class="font-medium text-gray-900">Artisan Market</div>
-                                <div class="text-sm text-gray-500">Campaign created</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-semibold text-gray-900">R2,000</div>
-                                <div class="text-xs text-gray-400">1 hour ago</div>
+                            
+                            <div class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition">
+                                <div class="p-2 rounded-full bg-yellow-100">
+                                    <i class="fas fa-bullhorn text-yellow-600"></i>
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <div class="font-medium text-gray-900">Artisan Market</div>
+                                    <div class="text-sm text-gray-500">Launched weekend campaign</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-semibold text-gray-900">R2,000</div>
+                                    <div class="text-xs text-gray-400">1 hour ago</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Quick Actions -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
-                    <div class="space-y-4">
-                        <button onclick="showModal('addBusiness')" 
-                                class="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition group">
-                            <div class="flex items-center">
-                                <div class="p-2 rounded-lg bg-blue-100 group-hover:bg-blue-200">
-                                    <i class="fas fa-store text-blue-600"></i>
+                <!-- Right Column -->
+                <div class="space-y-8">
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
+                        <div class="space-y-4">
+                            <button onclick="showActionModal('addBusiness')"
+                                    class="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition group">
+                                <div class="flex items-center">
+                                    <div class="p-2 rounded-lg bg-blue-100 group-hover:bg-blue-200">
+                                        <i class="fas fa-store text-blue-600"></i>
+                                    </div>
+                                    <div class="ml-4 text-left">
+                                        <div class="font-medium text-gray-900">Add Business</div>
+                                        <div class="text-sm text-gray-500">Onboard new partner</div>
+                                    </div>
                                 </div>
-                                <div class="ml-4 text-left">
-                                    <div class="font-medium text-gray-900">Add New Business</div>
-                                    <div class="text-sm text-gray-500">Onboard a local business</div>
+                                <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-600"></i>
+                            </button>
+                            
+                            <button onclick="showActionModal('createCampaign')"
+                                    class="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition group">
+                                <div class="flex items-center">
+                                    <div class="p-2 rounded-lg bg-green-100 group-hover:bg-green-200">
+                                        <i class="fas fa-bullhorn text-green-600"></i>
+                                    </div>
+                                    <div class="ml-4 text-left">
+                                        <div class="font-medium text-gray-900">Create Campaign</div>
+                                        <div class="text-sm text-gray-500">Launch promotion</div>
+                                    </div>
                                 </div>
-                            </div>
-                            <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-600"></i>
-                        </button>
-                        
-                        <button onclick="showModal('createCampaign')" 
-                                class="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition group">
-                            <div class="flex items-center">
-                                <div class="p-2 rounded-lg bg-green-100 group-hover:bg-green-200">
-                                    <i class="fas fa-bullhorn text-green-600"></i>
+                                <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-600"></i>
+                            </button>
+                            
+                            <button onclick="showActionModal('generateReport')"
+                                    class="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition group">
+                                <div class="flex items-center">
+                                    <div class="p-2 rounded-lg bg-purple-100 group-hover:bg-purple-200">
+                                        <i class="fas fa-chart-pie text-purple-600"></i>
+                                    </div>
+                                    <div class="ml-4 text-left">
+                                        <div class="font-medium text-gray-900">Generate Report</div>
+                                        <div class="text-sm text-gray-500">Monthly insights</div>
+                                    </div>
                                 </div>
-                                <div class="ml-4 text-left">
-                                    <div class="font-medium text-gray-900">Create Campaign</div>
-                                    <div class="text-sm text-gray-500">Launch a new promotion</div>
+                                <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-600"></i>
+                            </button>
+                            
+                            <button onclick="showActionModal('processSettlements')"
+                                    class="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition group">
+                                <div class="flex items-center">
+                                    <div class="p-2 rounded-lg bg-yellow-100 group-hover:bg-yellow-200">
+                                        <i class="fas fa-money-check-alt text-yellow-600"></i>
+                                    </div>
+                                    <div class="ml-4 text-left">
+                                        <div class="font-medium text-gray-900">Process Settlements</div>
+                                        <div class="text-sm text-gray-500">Business payouts</div>
+                                    </div>
                                 </div>
-                            </div>
-                            <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-600"></i>
-                        </button>
-                        
-                        <button onclick="showModal('generateReport')" 
-                                class="w-full flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition group">
-                            <div class="flex items-center">
-                                <div class="p-2 rounded-lg bg-purple-100 group-hover:bg-purple-200">
-                                    <i class="fas fa-chart-pie text-purple-600"></i>
-                                </div>
-                                <div class="ml-4 text-left">
-                                    <div class="font-medium text-gray-900">Generate Report</div>
-                                    <div class="text-sm text-gray-500">Monthly performance insights</div>
-                                </div>
-                            </div>
-                            <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-600"></i>
-                        </button>
+                                <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-600"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Business Network -->
-            <div class="mt-8 bg-white rounded-xl shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-6">Nottingham Road Network</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div class="p-4 border border-gray-200 rounded-lg hover:border-green-300 transition">
-                        <div class="flex items-center">
-                            <div class="p-2 bg-green-100 rounded-lg">
-                                <i class="fas fa-coffee text-green-600"></i>
+                    <!-- System Status -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-6">System Status</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-database text-blue-500 mr-3"></i>
+                                    <span class="text-gray-700">Database</span>
+                                </div>
+                                <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                                    Connected
+                                </span>
                             </div>
-                            <div class="ml-4">
-                                <div class="font-medium text-gray-900">Coffee Connection</div>
-                                <div class="text-sm text-gray-500">Café • 45 redemptions</div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-server text-purple-500 mr-3"></i>
+                                    <span class="text-gray-700">API Server</span>
+                                </div>
+                                <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                                    Operational
+                                </span>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <div class="p-4 border border-gray-200 rounded-lg hover:border-green-300 transition">
-                        <div class="flex items-center">
-                            <div class="p-2 bg-blue-100 rounded-lg">
-                                <i class="fas fa-bed text-blue-600"></i>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-qrcode text-green-500 mr-3"></i>
+                                    <span class="text-gray-700">QR Service</span>
+                                </div>
+                                <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                                    Active
+                                </span>
                             </div>
-                            <div class="ml-4">
-                                <div class="font-medium text-gray-900">Midlands Lodge</div>
-                                <div class="text-sm text-gray-500">Accommodation • 28 redemptions</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="p-4 border border-gray-200 rounded-lg hover:border-green-300 transition">
-                        <div class="flex items-center">
-                            <div class="p-2 bg-yellow-100 rounded-lg">
-                                <i class="fas fa-utensils text-yellow-600"></i>
-                            </div>
-                            <div class="ml-4">
-                                <div class="font-medium text-gray-900">River Restaurant</div>
-                                <div class="text-sm text-gray-500">Restaurant • 62 redemptions</div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-sync-alt text-yellow-500 mr-3"></i>
+                                    <span class="text-gray-700">Last Sync</span>
+                                </div>
+                                <span class="text-sm text-gray-600">Today, 02:00 AM</span>
                             </div>
                         </div>
                     </div>
@@ -337,84 +616,208 @@
         </div>
     </div>
 
-    <!-- Modals -->
-    <div id="addBusinessModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-gray-900">Add New Business</h3>
-                <button onclick="closeModal('addBusiness')" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+    <!-- Business Dashboard (Simplified) -->
+    <div id="businessDashboard" class="hidden">
+        <!-- Similar structure to admin dashboard but for businesses -->
+        <div class="bg-gradient-to-br from-blue-50 to-white min-h-screen p-8">
+            <div class="max-w-6xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <div class="flex justify-between items-center mb-8">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-store text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-900">Coffee Connection</h2>
+                                <p class="text-gray-600">Business Portal Dashboard</p>
+                            </div>
+                        </div>
+                        <button onclick="logout()" class="px-4 py-2 text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-green-50 p-6 rounded-xl border border-green-200">
+                            <div class="text-3xl font-bold text-green-700 mb-2">45</div>
+                            <div class="text-gray-600">Today's Redemptions</div>
+                        </div>
+                        <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                            <div class="text-3xl font-bold text-blue-700 mb-2">R2,250</div>
+                            <div class="text-gray-600">Today's Revenue</div>
+                        </div>
+                        <div class="bg-purple-50 p-6 rounded-xl border border-purple-200">
+                            <div class="text-3xl font-bold text-purple-700 mb-2">127</div>
+                            <div class="text-gray-600">Active Vouchers</div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center py-12">
+                        <i class="fas fa-building text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2">Business Portal</h3>
+                        <p class="text-gray-500">Full business dashboard coming soon...</p>
+                        <button onclick="logout()" class="mt-6 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg">
+                            Return to Admin Login
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="space-y-4">
-                <input type="text" placeholder="Business Name" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                <input type="email" placeholder="Email Address" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                <input type="text" placeholder="Category (Café, Restaurant, etc.)" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                <input type="tel" placeholder="Phone Number" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                <button class="w-full btn-primary text-white font-semibold py-3 rounded-lg mt-4">
-                    <i class="fas fa-plus mr-2"></i> Add Business
-                </button>
+        </div>
+    </div>
+
+    <!-- Customer Portal -->
+    <div id="customerPortal" class="hidden">
+        <div class="min-h-screen bg-gradient-to-b from-green-50 to-white">
+            <!-- Customer Portal content would go here -->
+            <div class="max-w-4xl mx-auto p-8">
+                <div class="text-center mb-12">
+                    <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-recycle text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-4xl font-bold text-gray-900 mb-4">Customer Portal</h1>
+                    <p class="text-gray-600">Discover and redeem rewards at Nottingham Road businesses</p>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <div class="text-center py-12">
+                        <i class="fas fa-mobile-alt text-6xl text-gray-300 mb-6"></i>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Mobile App Coming Soon!</h3>
+                        <p class="text-gray-600 mb-8">Scan QR codes at participating businesses to earn and redeem rewards.</p>
+                        <button onclick="showLanding()" class="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg text-lg font-semibold">
+                            <i class="fas fa-arrow-left mr-2"></i> Back to Home
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Modals -->
+    <div id="actionModal" class="hidden fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 slide-up">
+            <div id="modalContent">
+                <!-- Modal content will be inserted here -->
             </div>
         </div>
     </div>
 
     <script>
+        // Application State
+        let currentUser = null;
+        let loginType = 'admin';
+
         // Admin credentials
         const adminUsers = {
-            'johan@localloop.co.za': { password: 'Johan@123', name: 'Johan' },
-            'dean@localloop.co.za': { password: 'Dean@123', name: 'Dean' },
-            'tahir@localloop.co.za': { password: 'Tahir@123', name: 'Tahir' }
+            'johan@ourlocalloop.co.za': { password: 'Johan@123', name: 'Johan' },
+            'dean@ourlocalloop.co.za': { password: 'Dean@123', name: 'Dean' },
+            'tahir@ourlocalloop.co.za': { password: 'Tahir@123', name: 'Tahir' }
         };
 
-        // Fill credentials helper
-        function fillCredentials(email, password) {
-            document.getElementById('email').value = email;
-            document.getElementById('password').value = password;
+        // Business credentials (demo)
+        const businessUsers = {
+            'coffee@ourlocalloop.co.za': { password: 'Coffee123', name: 'Coffee Connection' },
+            'lodge@ourlocalloop.co.za': { password: 'Lodge123', name: 'Midlands Lodge' }
+        };
+
+        // Navigation Functions
+        function showLogin() {
+            document.getElementById('loginModal').classList.remove('hidden');
+            setLoginType('admin');
         }
 
-        // Login function
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            if (adminUsers[email] && adminUsers[email].password === password) {
-                // Store user info
-                localStorage.setItem('adminEmail', email);
-                localStorage.setItem('adminName', adminUsers[email].name);
-                
-                // Show success message
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Welcome back!',
-                    text: `Logged in as ${adminUsers[email].name}`,
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-                
-                // Switch to dashboard
-                setTimeout(() => {
-                    document.getElementById('loginScreen').classList.add('hidden');
-                    document.getElementById('dashboardScreen').classList.remove('hidden');
-                    
-                    // Update dashboard with user info
-                    document.getElementById('adminName').textContent = adminUsers[email].name;
-                    document.getElementById('adminEmail').textContent = email;
-                    document.getElementById('welcomeMessage').textContent = `Welcome back, ${adminUsers[email].name}!`;
-                }, 1600);
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Login Failed',
-                    text: 'Invalid email or password',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            }
-        });
+        function closeLogin() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
 
-        // Logout function
+        function setLoginType(type) {
+            loginType = type;
+            
+            // Update tabs
+            document.getElementById('adminTab').className = type === 'admin' 
+                ? 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-green-500 bg-green-50 text-green-700'
+                : 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-gray-300 text-gray-600 hover:border-green-300';
+            
+            document.getElementById('businessTab').className = type === 'business' 
+                ? 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-green-500 bg-green-50 text-green-700'
+                : 'flex-1 py-3 text-center font-medium rounded-lg border-2 border-gray-300 text-gray-600 hover:border-green-300';
+            
+            // Update button text
+            document.getElementById('loginButton').innerHTML = type === 'admin' 
+                ? '<i class="fas fa-sign-in-alt mr-2"></i> Admin Sign In'
+                : '<i class="fas fa-store mr-2"></i> Business Sign In';
+            
+            // Update demo accounts visibility
+            document.getElementById('demoAccounts').style.display = type === 'admin' ? 'block' : 'none';
+        }
+
+        function fillLogin(email, password) {
+            document.getElementById('loginEmail').value = email;
+            document.getElementById('loginPassword').value = password;
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            let user = null;
+            
+            if (loginType === 'admin') {
+                user = adminUsers[email];
+                if (user && user.password === password) {
+                    currentUser = { ...user, email, type: 'admin' };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Welcome back!',
+                        text: `Logged in as ${user.name}`,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    
+                    setTimeout(() => {
+                        closeLogin();
+                        document.getElementById('landingPage').classList.add('hidden');
+                        document.getElementById('adminDashboard').classList.remove('hidden');
+                        document.getElementById('currentAdmin').textContent = user.name;
+                        document.getElementById('adminWelcome').textContent = `Welcome, ${user.name}!`;
+                    }, 1600);
+                    return true;
+                }
+            } else if (loginType === 'business') {
+                user = businessUsers[email];
+                if (user && user.password === password) {
+                    currentUser = { ...user, email, type: 'business' };
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Welcome!',
+                        text: `Logged in to ${user.name}`,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    
+                    setTimeout(() => {
+                        closeLogin();
+                        document.getElementById('landingPage').classList.add('hidden');
+                        document.getElementById('businessDashboard').classList.remove('hidden');
+                    }, 1600);
+                    return true;
+                }
+            }
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Failed',
+                text: 'Invalid email or password',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            return false;
+        }
+
         function logout() {
             Swal.fire({
                 title: 'Logout?',
@@ -426,47 +829,132 @@
                 confirmButtonText: 'Yes, logout'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    localStorage.removeItem('adminEmail');
-                    localStorage.removeItem('adminName');
+                    currentUser = null;
+                    localStorage.removeItem('currentUser');
                     
-                    document.getElementById('dashboardScreen').classList.add('hidden');
-                    document.getElementById('loginScreen').classList.remove('hidden');
+                    // Hide all dashboards
+                    document.getElementById('adminDashboard').classList.add('hidden');
+                    document.getElementById('businessDashboard').classList.add('hidden');
+                    document.getElementById('customerPortal').classList.add('hidden');
                     
-                    // Clear form
-                    document.getElementById('email').value = '';
-                    document.getElementById('password').value = '';
+                    // Show landing page
+                    document.getElementById('landingPage').classList.remove('hidden');
+                    document.getElementById('loginModal').classList.add('hidden');
                 }
             });
         }
 
-        // Modal functions
-        function showModal(modalId) {
-            document.getElementById(modalId + 'Modal').classList.remove('hidden');
+        function showCustomerPortal() {
+            document.getElementById('landingPage').classList.add('hidden');
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('customerPortal').classList.remove('hidden');
         }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId + 'Modal').classList.add('hidden');
+        function showLanding() {
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('businessDashboard').classList.add('hidden');
+            document.getElementById('customerPortal').classList.add('hidden');
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('landingPage').classList.remove('hidden');
         }
 
-        // Check if already logged in
+        function showActionModal(action) {
+            let modalContent = '';
+            let title = '';
+            
+            switch(action) {
+                case 'addBusiness':
+                    title = 'Add New Business';
+                    modalContent = `
+                        <div class="space-y-4">
+                            <input type="text" placeholder="Business Name" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                            <input type="email" placeholder="Email Address" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                <option>Select Category</option>
+                                <option>Café / Coffee Shop</option>
+                                <option>Restaurant</option>
+                                <option>Accommodation</option>
+                                <option>Retail</option>
+                                <option>Experience</option>
+                            </select>
+                            <button class="w-full btn-primary text-white font-semibold py-3 rounded-lg mt-4">
+                                <i class="fas fa-plus mr-2"></i> Add Business
+                            </button>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'createCampaign':
+                    title = 'Create Campaign';
+                    modalContent = `
+                        <div class="space-y-4">
+                            <input type="text" placeholder="Campaign Name" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                            <textarea placeholder="Description" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg"></textarea>
+                            <input type="number" placeholder="Budget (R)" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                            <button class="w-full btn-primary text-white font-semibold py-3 rounded-lg mt-4">
+                                <i class="fas fa-bullhorn mr-2"></i> Launch Campaign
+                            </button>
+                        </div>
+                    `;
+                    break;
+                    
+                default:
+                    title = 'Action';
+                    modalContent = `<p class="text-gray-600">Action functionality coming soon...</p>`;
+            }
+            
+            document.getElementById('modalContent').innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-900">${title}</h3>
+                    <button onclick="closeActionModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                ${modalContent}
+            `;
+            
+            document.getElementById('actionModal').classList.remove('hidden');
+        }
+
+        function closeActionModal() {
+            document.getElementById('actionModal').classList.add('hidden');
+        }
+
+        // Check for saved user on load
         window.onload = function() {
-            const savedEmail = localStorage.getItem('adminEmail');
-            if (savedEmail && adminUsers[savedEmail]) {
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('dashboardScreen').classList.remove('hidden');
-                
-                document.getElementById('adminName').textContent = adminUsers[savedEmail].name;
-                document.getElementById('adminEmail').textContent = savedEmail;
-                document.getElementById('welcomeMessage').textContent = `Welcome back, ${adminUsers[savedEmail].name}!`;
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                if (currentUser.type === 'admin') {
+                    document.getElementById('landingPage').classList.add('hidden');
+                    document.getElementById('adminDashboard').classList.remove('hidden');
+                    document.getElementById('currentAdmin').textContent = currentUser.name;
+                    document.getElementById('adminWelcome').textContent = `Welcome, ${currentUser.name}!`;
+                }
+            }
+            
+            // Close modals when clicking outside
+            window.onclick = function(event) {
+                if (event.target.id === 'loginModal' || event.target.id === 'actionModal') {
+                    closeLogin();
+                    closeActionModal();
+                }
             }
         }
 
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            if (event.target.classList.contains('bg-opacity-50')) {
-                event.target.classList.add('hidden');
-            }
-        }
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
     </script>
 </body>
 </html>
